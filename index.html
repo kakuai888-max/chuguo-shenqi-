@@ -1,0 +1,4961 @@
+<!DOCTYPE html>
+<html lang="zh-TW"><head>
+  <script type="module" src="/@vite/client"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌐 多語沉浸式學習與拍照翻譯工具（英／日／韓／越）</title>
+  <meta name="description" content="支援英文、日文、韓語、越南語長篇沉浸式語塊拆解學習、拍照上傳圖片 OCR 翻譯，以及中文語音轉英日韓越即時朗讀溝通的單一 HTML 工具。">
+  <meta property="og:title" content="🌐 多語沉浸式學習與拍照翻譯工具（英／日／韓／越）">
+  <meta property="og:description" content="支援英文、日文、韓語、越南語長篇沉浸式語塊拆解學習、拍照上傳圖片 OCR 翻譯，以及中文語音轉英日韓越即時朗讀溝通的單一 HTML 工具。">
+  <meta property="og:type" content="website">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --bg-base: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --accent-chunk: #eff6ff;
+      --accent-chunk-border: #bfdbfe;
+      --accent-chunk-text: #1e40af;
+      --success-green: #059669;
+      --success-soft: #ecfdf5;
+      --warning-amber: #d97706;
+      --warning-soft: #fffbeb;
+      --danger-red: #dc2626;
+      --danger-soft: #fef2f2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "Noto Sans JP", "Noto Sans KR", "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 20px 14px 48px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Header with Right-Top Download Button */
+    header {
+      background: var(--card-bg);
+      padding: 16px 22px;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-download-html {
+      background: var(--bg-base);
+      color: var(--primary);
+      border: 1px solid var(--accent-chunk-border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-download-html:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+
+    /* Voice Engine Bar for Authentic Native Pronunciation */
+    .tts-engine-bar {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: #166534;
+    }
+
+    .tts-engine-left {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .tts-engine-select {
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid #86efac;
+      background: #ffffff;
+      color: #14532d;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-test-vi-voice {
+      background: #ffffff;
+      color: #059669;
+      border: 1px solid #6ee7b7;
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-test-vi-voice:hover {
+      background: #dcfce7;
+      border-color: #059669;
+    }
+
+    .chunk-pron {
+      font-size: 0.78rem;
+      color: #0284c7;
+      font-weight: 600;
+    }
+
+    /* Main Mode Tabs: 📖 學習模式 vs 📷 拍照／圖片翻譯 vs 🗣️ 雙向即時溝通 vs 🌏 旅人社群與回饋 */
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      background: #e2e8f0;
+      padding: 5px;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .mode-tabs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .comm-phrase-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .mode-tabs {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mode-tab-btn {
+      min-height: 48px;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+      padding: 6px 10px;
+    }
+
+    .mode-tab-btn.active {
+      background: var(--card-bg);
+      color: var(--primary);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 16px;
+      }
+      header {
+        padding: 14px 16px;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label.section-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .label-with-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .btn-inline-photo {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--accent-chunk-border);
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-inline-photo:hover {
+      background: #dbeafe;
+      border-color: var(--primary);
+    }
+
+    .lang-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .lang-selector label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      background: var(--bg-base);
+      padding: 9px 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      transition: all 0.2s;
+      font-size: 0.94rem;
+      min-height: 44px;
+    }
+
+    .lang-selector input[type="radio"]:checked + span {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      line-height: 1.6;
+      resize: vertical;
+      font-family: inherit;
+      color: var(--text-main);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Interactive Input Hub Box (Makes it 100% obvious this is an input area) */
+    .input-hub-card {
+      background: #ffffff;
+      border: 2px solid #93c5fd;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+      transition: all 0.2s;
+    }
+
+    .input-hub-card:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.16);
+    }
+
+    .input-hub-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #cbd5e1;
+      margin-bottom: 12px;
+    }
+
+    .input-hub-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-hub-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      font-size: 0.88rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .input-hub-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-paste-clipboard {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-paste-clipboard:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-clear-input-inline {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-clear-input-inline:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .input-hub-textarea {
+      width: 100%;
+      min-height: 145px;
+      padding: 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      resize: vertical;
+      font-family: inherit;
+      color: #0f172a;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+
+    .input-hub-textarea:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+
+    .input-hub-textarea::placeholder {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    .input-hub-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .demo-callout-banner {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn-load-demo {
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-load-demo:hover {
+      background: #047857;
+    }
+
+    .learn-welcome-guide {
+      text-align: center;
+      padding: 36px 18px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 2px dashed #cbd5e1;
+    }
+
+    .quick-examples-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .example-chip {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .example-chip:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      min-height: 46px;
+      padding: 11px 20px;
+      border-radius: 8px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--bg-base);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #e2e8f0;
+    }
+
+    .btn-success {
+      background: var(--success-green);
+      color: white;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: #047857;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Progress & Status */
+    .progress-box {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: var(--border-color);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.25s ease;
+    }
+
+    .progress-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .status-msg {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 0.92rem;
+      display: none;
+    }
+
+    .status-error {
+      background: var(--danger-soft);
+      color: var(--danger-red);
+      border: 1px solid #fecaca;
+    }
+
+    .status-info {
+      background: var(--warning-soft);
+      color: var(--warning-amber);
+      border: 1px solid #fde68a;
+    }
+
+    /* Output Section (Learning Mode) */
+    .paragraph-block {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 24px;
+      margin-bottom: 24px;
+    }
+
+    .paragraph-block:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .paragraph-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .sentence-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .sentence-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .original-text {
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: var(--text-main);
+      word-break: break-word;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .translated-text {
+      font-size: 1rem;
+      color: var(--success-green);
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .tts-controls {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .tts-btn {
+      background: white;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      min-height: 36px;
+    }
+
+    .tts-btn:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    /* Chunk Section */
+    .chunks-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .chunks-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chunk-tag {
+      background: var(--accent-chunk);
+      border: 1px solid var(--accent-chunk-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+
+    .chunk-tag:hover {
+      background: #dbeafe;
+      transform: translateY(-1px);
+    }
+
+    .chunk-orig {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-chunk-text);
+    }
+
+    .chunk-trans {
+      font-size: 0.84rem;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    /* ==============================================================
+       📷 拍照／圖片翻譯模式 (Photo Upload & Camera OCR UI)
+       ============================================================== */
+    .photo-upload-zone {
+      border: 2px dashed #93c5fd;
+      background: var(--primary-soft);
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      transition: all 0.2s;
+      margin-bottom: 18px;
+    }
+
+    .photo-upload-zone.dragover {
+      background: #dbeafe;
+      border-color: var(--primary);
+      transform: scale(1.01);
+    }
+
+    .photo-upload-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent-chunk-text);
+      margin-bottom: 6px;
+    }
+
+    .photo-upload-hint {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .photo-action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* Live WebRTC Camera Modal / Box */
+    .camera-live-box {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 18px;
+      color: white;
+    }
+
+    .camera-live-box video {
+      width: 100%;
+      max-width: 540px;
+      border-radius: 8px;
+      background: #000;
+      margin-bottom: 12px;
+    }
+
+    /* Image Preview Container */
+    .photo-preview-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .photo-preview-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .photo-preview-img {
+      max-width: 100%;
+      max-height: 340px;
+      border-radius: 8px;
+      object-fit: contain;
+      border: 1px solid var(--border-color);
+      background: #fff;
+    }
+
+    .ocr-result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 680px) {
+      .ocr-result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ocr-box {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ocr-box.translated {
+      background: var(--success-soft);
+      border-color: #a7f3d0;
+    }
+
+    .ocr-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ocr-box-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .ocr-box.translated .ocr-box-title {
+      color: var(--success-green);
+    }
+
+    /* ==============================================================
+       🗣️ 即時溝通模式 (Mobile-First Voice Communication UI)
+       ============================================================== */
+    .voice-mode-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .direction-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--accent-chunk-border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .https-hint {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .mic-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 18px 12px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .mic-speaker-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .btn-mic-large {
+      width: 100%;
+      max-width: 320px;
+      min-height: 60px;
+      border-radius: 14px;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+      transition: all 0.2s;
+    }
+
+    .btn-mic-large:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .btn-mic-large.listening {
+      background: var(--danger-red);
+      box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.18);
+    }
+
+    .mic-status-hint {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      min-height: 22px;
+    }
+
+    .target-lang-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (min-width: 640px) {
+      .target-lang-buttons {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .target-lang-btn {
+      min-height: 52px;
+      border-radius: 10px;
+      border: 2px solid var(--border-color);
+      background: var(--bg-base);
+      color: var(--text-main);
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 10px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .target-lang-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .auto-speak-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: var(--bg-base);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .voice-output-box {
+      margin-top: 20px;
+      background: var(--success-soft);
+      border: 1.5px solid #a7f3d0;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .voice-output-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--success-green);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .voice-output-main {
+      font-size: clamp(1.3rem, 3.5vw, 1.65rem);
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.45;
+      margin-bottom: 16px;
+      word-break: break-word;
+    }
+
+    .voice-play-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Intuitive Language Pair Selector in Learning Mode */
+    .lang-pair-panel {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .lang-pair-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .lang-pair-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--accent-chunk-border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.93rem;
+    }
+
+    .lang-pill-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+      gap: 8px;
+    }
+
+    .lang-pill-btn {
+      min-height: 44px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 10px;
+      transition: all 0.15s;
+    }
+
+    .lang-pill-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .lang-pill-btn.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.22);
+    }
+
+    /* Bidirectional Voice Mode Dual Mic Grid */
+    .dual-mic-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 640px) {
+      .dual-mic-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mic-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 18px 14px;
+      background: var(--bg-base);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .mic-card.active-side {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .mic-card.partner-side.active-side {
+      border-color: var(--success-green);
+      background: var(--success-soft);
+    }
+
+    .btn-mic-partner {
+      background: var(--success-green);
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.22);
+    }
+
+    .btn-mic-partner:hover:not(:disabled) {
+      background: #047857;
+    }
+
+    .speaker-role-switch {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .role-pill-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-base);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: all 0.15s;
+    }
+
+    .role-pill-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .chat-history-box {
+      margin-top: 20px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+    }
+
+    .chat-history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 360px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    .chat-bubble {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-base);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .chat-bubble.me {
+      background: var(--primary-soft);
+      border-color: var(--accent-chunk-border);
+    }
+
+    .chat-bubble.partner {
+      background: var(--success-soft);
+      border-color: #a7f3d0;
+    }
+
+    /* Live Presence & Community Feedback Styles (Netlify Ready) */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .live-online-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #ecfdf5;
+      border: 1.5px solid #6ee7b7;
+      color: #065f46;
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .live-online-pill:hover {
+      background: #d1fae5;
+      border-color: #10b981;
+    }
+
+    .pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+      display: inline-block;
+    }
+
+    .community-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 640px) {
+      .community-stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-box {
+      background: var(--bg-base);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-box.highlight-green {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .presence-status-bar {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .status-tag-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .status-tag-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .feedback-form-box {
+      background: var(--bg-base);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .form-row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .text-input, .select-input {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border-color);
+      background: #ffffff;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      font-family: inherit;
+    }
+
+    .text-input:focus, .select-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .optional-phrase-box {
+      background: #ffffff;
+      border: 1px dashed var(--accent-chunk-border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      margin-bottom: 14px;
+    }
+
+    .comment-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .comment-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .comment-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.15s;
+    }
+
+    .comment-card:hover {
+      border-color: #cbd5e1;
+    }
+
+    .comment-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .comment-author-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .comment-author {
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: var(--text-main);
+    }
+
+    .comment-scene-badge {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--accent-chunk-border);
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .comment-stars {
+      color: #f59e0b;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+
+    .comment-time {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .comment-body {
+      font-size: 0.96rem;
+      color: var(--text-main);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .shared-phrase-card {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .comment-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .btn-like-comment {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-like-comment:hover, .btn-like-comment.liked {
+      background: #eff6ff;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+  </style>
+<script src="/_aistudio-iframe.js?v=2c34bde1"></script><script src="https://cdn.jsdelivr.net/npm/html2canvas-pro@2.0.4"></script><style>.aistudio-hover-highlight { box-shadow: inset 0 0 0 0.5px white, inset 0 0 0 1.5px rgba(128,128,128,0.6) !important; }.aistudio-active-highlight { outline: 2px solid #87a9ff !important; outline-offset: -2px !important; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.3), inset 0 0 0 0.5px rgba(0,0,0,0.3) !important; }.aistudio-generating-blur { filter: blur(5px) grayscale(100%) brightness(28%) !important; transition: filter 0.3s ease; }#aistudio-focus-mode-tag { position: absolute; display: none; align-items: center; gap: 4px; background: #87a9ff; border-radius: 12px; z-index: 10000; padding: 8px; color: #32302c; font-family: Inter, sans-serif; font-size: 14px; font-style: normal; font-weight: 500; line-height: 21px; pointer-events: none; }#aistudio-hover-mode-tag { position: absolute; display: none; align-items: center; gap: 4px; background: rgba(128,128,128,0.6); border-radius: 12px; z-index: 10000; padding: 8px; color: white; font-family: Inter, sans-serif; font-size: 14px; font-style: normal; font-weight: 500; line-height: 21px; pointer-events: none; }.aistudio-img-icon { display: none; vertical-align: middle; pointer-events: auto; cursor: pointer; }.aistudio-img-icon.visible { display: inline-flex; }#aistudio-focus-mode-tag .aistudio-img-icon { position: relative; width: 26px; height: 26px; background: #32302c; border-radius: 6px; margin: -4px -4px -4px 0; }#aistudio-focus-mode-tag .aistudio-img-icon::before { content: ""; position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; background-color: white; -webkit-mask-image: url("https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/edit_fix_auto/default/24px.svg"); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; mask-image: url("https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/edit_fix_auto/default/24px.svg"); mask-size: contain; mask-repeat: no-repeat; }#aistudio-hover-mode-tag .aistudio-img-icon { position: relative; width: 18px; height: 18px; margin-left: 4px; }#aistudio-hover-mode-tag .aistudio-img-icon::before { content: ""; position: absolute; top: 0; left: 0; width: 18px; height: 18px; background-color: white; -webkit-mask-image: url("https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/edit_fix_auto/default/24px.svg"); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; mask-image: url("https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/edit_fix_auto/default/24px.svg"); mask-size: contain; mask-repeat: no-repeat; }#aistudio-focus-mode-tag .aistudio-img-icon:hover, #aistudio-hover-mode-tag .aistudio-img-icon:hover { background: #424242 !important; }#aistudio-focus-mode-tag .aistudio-img-icon:active, #aistudio-hover-mode-tag .aistudio-img-icon:active { background: #393f51 !important; }</style></head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🌐 多語沉浸式學習與拍照翻譯（中／英／日／韓／越）</h1>
+    <div class="header-actions">
+      <button type="button" class="live-online-pill" id="btn-header-online-pill" title="點擊查看目前在線旅人與使用體驗留言">
+        <span class="pulse-dot"></span>
+        <span id="header-online-text">🟢 線上 1 人使用中・點此看旅人回饋 (3)</span>
+      </button>
+      <button type="button" class="btn-download-html" id="btn-download-self" title="將此工具下載為單一 HTML 檔案">
+        ⬇️ 下載 HTML 檔案
+      </button>
+    </div>
+  </header>
+
+  <!-- 真人級標準母語發音引擎設定列（解決系統預設無越語語音或發音不標準問題） -->
+  <div class="tts-engine-bar">
+    <div class="tts-engine-left">
+      <span>🎙️ 發音品質設定：</span>
+      <select id="tts-engine-mode" class="tts-engine-select" aria-label="選擇發音引擎">
+        <option value="neural" selected="">🌟 雲端真人標準母語發音（推薦：越語／韓語／日語最道地）</option>
+        <option value="browser">💻 瀏覽器系統內建語音（僅限已安裝母語語音包之設備）</option>
+      </select>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+      <span id="tts-active-status" style="font-size:0.82rem; color:#15803d;">✅ 已啟用標準越南語六聲調母語發音</span>
+      <button type="button" class="btn-test-vi-voice" id="btn-test-vi-voice" title="立即試聽標準越南語發音">
+        🇻🇳 試聽標準越語發音
+      </button>
+    </div>
+  </div>
+
+  <!-- 主要模式切換：📖 學習模式 vs 📷 拍照／圖片翻譯 vs 🗣️ 雙向即時溝通 vs 🌏 旅人社群與回饋 -->
+  <div class="mode-tabs" role="tablist" aria-label="功能模式切換">
+    <button type="button" class="mode-tab-btn active" id="tab-learn-mode" role="tab" aria-selected="true">
+      📖 學習模式
+    </button>
+    <button type="button" class="mode-tab-btn" id="tab-photo-mode" role="tab" aria-selected="false">
+      📷 拍照／圖片翻譯
+    </button>
+    <button type="button" class="mode-tab-btn" id="tab-voice-mode" role="tab" aria-selected="false">
+      🗣️ 雙向即時溝通
+    </button>
+    <button type="button" class="mode-tab-btn" id="tab-community-mode" role="tab" aria-selected="false">
+      🌏 旅人社群與回饋 <span id="tab-online-badge" style="font-size:0.8rem; color:#059669;">(1)</span>
+    </button>
+  </div>
+
+  <!-- ==========================================
+       區塊 A：📖 學習模式（直覺式「輸入語言 ⇄ 目標語言」含繁體中文）
+       ========================================== -->
+  <div id="panel-learn-mode">
+    <div class="card">
+      <div class="lang-pair-panel">
+        <div class="lang-pair-header">
+          <div class="lang-pair-badge" id="learn-pair-summary-badge">
+            🧭 目前模式：✨ 自動偵測原文 ➔ 🇹🇼 繁體中文（若貼上中文則自動翻為外語拆解）
+          </div>
+        </div>
+
+        <!-- 步驟 1：選擇貼上的原文語言（包含繁體中文） -->
+        <div>
+          <label class="section-label" style="margin-bottom:8px;">① 我貼上的文章／句子語言（點擊直接切換）：</label>
+          <div class="lang-pill-group" id="learn-source-btn-group">
+            <button type="button" class="lang-pill-btn active" data-src-lang="auto">✨ 自動偵測</button>
+            <button type="button" class="lang-pill-btn" data-src-lang="zh-TW">🇹🇼 繁體中文</button>
+            <button type="button" class="lang-pill-btn" data-src-lang="en">🇺🇸 英文 English</button>
+            <button type="button" class="lang-pill-btn" data-src-lang="ja">🇯🇵 日文 日本語</button>
+            <button type="button" class="lang-pill-btn" data-src-lang="ko">🇰🇷 韓語 한국어</button>
+            <button type="button" class="lang-pill-btn" data-src-lang="vi">🇻🇳 越南語 Tiếng Việt</button>
+          </div>
+          <!-- 保留隱藏 radio 供向下相容 -->
+          <div style="display:none;">
+            <input type="radio" name="lang" value="auto" checked="">
+            <input type="radio" name="lang" value="zh-TW">
+            <input type="radio" name="lang" value="en">
+            <input type="radio" name="lang" value="ja">
+            <input type="radio" name="lang" value="ko">
+            <input type="radio" name="lang" value="vi">
+          </div>
+        </div>
+
+        <!-- 步驟 2：選擇要翻譯與學習的目標語言 -->
+        <div>
+          <label class="section-label" style="margin-bottom:8px;">② 翻譯與語塊學習目標語言（當貼上繁體中文時，想翻成哪一國語言學習？）：</label>
+          <div class="lang-pill-group" id="learn-target-btn-group">
+            <button type="button" class="lang-pill-btn active" data-tgt-lang="auto-zh">🇹🇼 翻成繁體中文（預設）</button>
+            <button type="button" class="lang-pill-btn" data-tgt-lang="en">🇺🇸 翻成英文學習</button>
+            <button type="button" class="lang-pill-btn" data-tgt-lang="ja">🇯🇵 翻成日文學習</button>
+            <button type="button" class="lang-pill-btn" data-tgt-lang="ko">🇰🇷 翻成韓語學習</button>
+            <button type="button" class="lang-pill-btn" data-tgt-lang="vi">🇻🇳 翻成越南語學習</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步驟 3：極度直覺醒目的輸入文字區（一看就知道是輸入框） -->
+      <div class="input-hub-card">
+        <div class="input-hub-header">
+          <div class="input-hub-title-wrap">
+            <span class="input-hub-badge">✍️ 輸入／貼上文字區</span>
+            <span style="font-size:0.92rem; font-weight:700; color:var(--text-main);">
+              遇到不會的外文？請點擊下方框框輸入或貼上：
+            </span>
+          </div>
+          <div class="input-hub-actions">
+            <button type="button" class="btn-paste-clipboard" id="btn-paste-clipboard" title="讀取剪貼簿並自動貼入框內">
+              📋 一鍵貼上
+            </button>
+            <button type="button" class="btn-clear-input-inline" id="btn-clear-input-inline" title="清空文字框">
+              🧹 清空
+            </button>
+            <button type="button" class="btn-inline-photo" id="btn-jump-photo">
+              📷 拍照／截圖文字
+            </button>
+          </div>
+        </div>
+
+        <textarea id="input-text" class="input-hub-textarea" placeholder="👉 請在此點擊輸入文字，或直接按 Ctrl+V 貼上想學習的單字、句子或文章...
+
+💡 支援各種文字長度與格式：
+・單字／片語（例：reservation 或 予約）
+・日常會話（例：I would like to make a reservation for two.）
+・日文敬語（例：お早いお着きでございます。）
+・韓文生活句（例：두 명 저녁 식사를 예약하고 싶습니다.）
+・越文點餐（例：Tôi muốn đặt bàn ăn tối cho hai người.）
+・繁體中文句子（例：請問這附近有便利商店嗎？）
+・多段落長篇文章（自動分段、逐句語塊拆解）"></textarea>
+
+        <div class="input-hub-footer">
+          <span>💡 提示：點擊框內即可打字，支援長篇外文文章、會話或單字</span>
+          <span>已輸入 <strong id="input-char-counter" style="color:var(--primary);">0</strong> 字</span>
+        </div>
+      </div>
+
+      <!-- 示範例句提示列（讓想體驗的人一鍵載入，不再讓輸入框被預設文字佔滿） -->
+      <div class="demo-callout-banner">
+        <div style="font-size:0.88rem; color:#14532d; font-weight:600;">
+          🧪 初次使用？不想打字可直接點此體驗效果：
+        </div>
+        <button type="button" class="btn-load-demo" id="btn-load-demo-banner">
+          🚀 一鍵載入 4 國示範例句（英／日／韓／越）
+        </button>
+      </div>
+
+      <div class="quick-examples-bar">
+        <span style="font-size:0.84rem; color:var(--text-muted); display:flex; align-items:center;">單句快速測試：</span>
+        <button type="button" class="example-chip" data-sample="お早いお着きでございます。">🇯🇵 日文：お早いお着きでございます。</button>
+        <button type="button" class="example-chip" data-sample="I would like to make a reservation for two.">🇺🇸 英文：I would like to make a reservation...</button>
+        <button type="button" class="example-chip" data-sample="안녕하세요. 근처에 편의점이 있나요? 역까지는 어떻게 가나요?">🇰🇷 韓語：안녕하세요. 근처에 편의점이 있나요?</button>
+        <button type="button" class="example-chip" data-sample="Xin chào, gần đây có cửa hàng tiện lợi nào không? Tôi muốn đặt bàn ăn tối cho hai người.">🇻🇳 越語：Xin chào, gần đây có cửa hàng...</button>
+        <button type="button" class="example-chip" data-sample="請問這附近有便利商店嗎？我想預約兩個人的晚餐。" data-force-zh="true">🇹🇼 中文轉外語拆解：請問這附近有便利商店嗎？</button>
+      </div>
+
+      <div id="status-box" class="status-msg status-error"></div>
+
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" id="btn-analyze">🔍 開始沉浸式拆解分析</button>
+        <button type="button" class="btn btn-secondary" id="btn-clear">🧹 清空</button>
+      </div>
+
+      <div class="progress-box" id="progress-box">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text">正在翻譯與拆解分析中... 0%</div>
+      </div>
+    </div>
+
+    <div class="card" id="output-card" style="margin-top: 18px; display: block;">
+      <div id="analysis-results">
+      <div class="learn-welcome-guide">
+        <div style="font-size:2.2rem; margin-bottom:8px;">💡</div>
+        <div style="font-size:1.15rem; font-weight:800; color:var(--text-main); margin-bottom:6px;">
+          遇到不會的字詞／句子？請在上方文字框輸入或貼上！
+        </div>
+        <div style="font-size:0.92rem; color:var(--text-muted); max-width:540px; margin:0 auto 16px auto; line-height:1.6;">
+          操作方式超簡單：<strong>① 點擊上方輸入框打字或按「📋 一鍵貼上」 ➔ ② 點擊「開始沉浸式拆解分析」➔ ③ 立即看意思、聽發音與拆解！</strong>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-load-demo-guide" style="display:inline-flex; align-items:center; gap:6px; margin:0 auto;">
+          🧪 點此一鍵載入 4 國示範例句體驗效果
+        </button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       區塊 B：📷 拍照／圖片翻譯模式（新增功能）
+       ========================================== -->
+  <div id="panel-photo-mode" style="display: none;">
+    <div class="card">
+      <div class="form-group">
+        <label class="section-label">1. 圖片文字語言（提高辨識準確度）：</label>
+        <div class="lang-selector">
+          <label><input type="radio" name="ocr-lang" value="auto" checked=""> <span>✨ 自動偵測</span></label>
+          <label><input type="radio" name="ocr-lang" value="zh-TW"> <span>🇹🇼 繁體中文</span></label>
+          <label><input type="radio" name="ocr-lang" value="en"> <span>🇺🇸 英文 English</span></label>
+          <label><input type="radio" name="ocr-lang" value="ja"> <span>🇯🇵 日文 日本語</span></label>
+          <label><input type="radio" name="ocr-lang" value="ko"> <span>🇰🇷 韓語 한국어</span></label>
+          <label><input type="radio" name="ocr-lang" value="vi"> <span>🇻🇳 越南語 Tiếng Việt</span></label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="section-label">2. 翻譯目標語言：</label>
+        <div class="lang-selector">
+          <label><input type="radio" name="ocr-target" value="zh-TW" checked=""> <span>🇹🇼 繁體中文</span></label>
+          <label><input type="radio" name="ocr-target" value="en"> <span>🇺🇸 English</span></label>
+          <label><input type="radio" name="ocr-target" value="ja"> <span>🇯🇵 日本語</span></label>
+          <label><input type="radio" name="ocr-target" value="ko"> <span>🇰🇷 한국어</span></label>
+          <label><input type="radio" name="ocr-target" value="vi"> <span>🇻🇳 Tiếng Việt</span></label>
+        </div>
+      </div>
+
+      <!-- 隱藏的檔案與相機 input -->
+      <input type="file" id="file-upload-input" accept="image/*" style="display:none;">
+      <input type="file" id="camera-capture-input" accept="image/*" capture="environment" style="display:none;">
+
+      <!-- 拖曳、拍照、上傳或貼上截圖區 -->
+      <div class="photo-upload-zone" id="photo-drop-zone">
+        <div class="photo-upload-title">📷 拍下菜單、路標、書本或上傳截圖，立即辨識翻譯</div>
+        <div class="photo-upload-hint">支援手機拍照、選擇相簿圖片、拖曳圖片至此，或直接按 <strong>Ctrl+V</strong> 貼上截圖</div>
+        <div class="photo-action-buttons">
+          <button type="button" class="btn btn-primary" id="btn-trigger-camera">
+            📸 手機拍照
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-trigger-webcam" style="background:#ffffff;">
+            💻 開啟視訊鏡頭拍照
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-trigger-upload" style="background:#ffffff;">
+            🖼️ 選擇圖片／截圖上傳
+          </button>
+        </div>
+      </div>
+
+      <!-- 網頁即時鏡頭預覽盒 (WebRTC) -->
+      <div class="camera-live-box" id="camera-live-box">
+        <video id="camera-video" autoplay="" playsinline="" muted=""></video>
+        <div class="btn-group">
+          <button type="button" class="btn btn-primary" id="btn-snap-photo">📸 拍下這張畫面</button>
+          <button type="button" class="btn btn-secondary" id="btn-close-camera">✖ 關閉鏡頭</button>
+        </div>
+      </div>
+
+      <!-- 快速測試圖片案例（一鍵產生實境圖片並直接測試 OCR 翻譯） -->
+      <div class="quick-examples-bar">
+        <span style="font-size:0.84rem; color:var(--text-muted); display:flex; align-items:center;">🧪 沒有圖片？點此產生範例圖片測試：</span>
+        <button type="button" class="example-chip photo-sample-chip" data-sample-type="ja">🇯🇵 日文旅館敬語圖片</button>
+        <button type="button" class="example-chip photo-sample-chip" data-sample-type="en">🇺🇸 英文餐廳訂位圖片</button>
+        <button type="button" class="example-chip photo-sample-chip" data-sample-type="ko">🇰🇷 韓文問路招牌圖片</button>
+        <button type="button" class="example-chip photo-sample-chip" data-sample-type="vi">🇻🇳 越南文點餐菜單圖片</button>
+      </div>
+
+      <div id="photo-status-box" class="status-msg status-error"></div>
+
+      <!-- 圖片預覽區 -->
+      <div class="photo-preview-wrap" id="photo-preview-wrap">
+        <div class="photo-preview-header">
+          <span style="font-size:0.9rem; font-weight:700; color:var(--text-main);" id="photo-meta-label">🖼️ 已載入圖片預覽</span>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="tts-btn" id="btn-re-ocr">🔄 重新辨識</button>
+            <button type="button" class="tts-btn" id="btn-clear-photo">🗑️ 移除圖片</button>
+          </div>
+        </div>
+        <img id="photo-preview-img" class="photo-preview-img" alt="上傳的圖片預覽">
+      </div>
+
+      <!-- 圖片辨識進度條 -->
+      <div class="progress-box" id="photo-progress-box">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="photo-progress-fill"></div>
+        </div>
+        <div class="progress-text" id="photo-progress-text">正在辨識圖片文字與翻譯中... 0%</div>
+      </div>
+
+      <!-- OCR 辨識與翻譯結果雙欄區 -->
+      <div id="photo-result-section" style="display: none;">
+        <div class="ocr-result-grid">
+          <!-- 左欄：辨識出的原文（可編輯微調） -->
+          <div class="ocr-box">
+            <div class="ocr-box-header">
+              <span class="ocr-box-title" id="ocr-detected-lang-label">📄 圖片辨識原文（可點擊修改）</span>
+              <div class="tts-controls">
+                <button type="button" class="tts-btn" id="btn-ocr-speak-orig">🔊 朗讀</button>
+                <button type="button" class="tts-btn" id="btn-ocr-speak-orig-slow">🐢 慢速</button>
+              </div>
+            </div>
+            <textarea id="ocr-extracted-textarea" style="min-height: 130px; background:#fff;" placeholder="辨識出的圖片文字會顯示在這裡..."></textarea>
+            <button type="button" class="btn btn-secondary" id="btn-retranslate-edited-ocr" style="background:#fff; min-height:40px; font-size:0.9rem;">
+              🔄 依修改後的原文重新翻譯
+            </button>
+          </div>
+
+          <!-- 右欄：翻譯結果 -->
+          <div class="ocr-box translated">
+            <div class="ocr-box-header">
+              <span class="ocr-box-title" id="ocr-target-lang-label">✨ 翻譯結果（🇹🇼 繁體中文）</span>
+              <div class="tts-controls">
+                <button type="button" class="tts-btn" id="btn-ocr-speak-trans">🔊 朗讀</button>
+                <button type="button" class="tts-btn" id="btn-ocr-speak-trans-slow">🐢 慢速</button>
+                <button type="button" class="tts-btn" id="btn-ocr-copy-trans">📋 複製</button>
+              </div>
+            </div>
+            <div id="ocr-translated-output" style="font-size:1.08rem; font-weight:600; color:var(--text-main); white-space:pre-wrap; min-height:130px; padding:10px; background:#ffffff; border-radius:8px; border:1px solid #a7f3d0;"></div>
+          </div>
+        </div>
+
+        <!-- 一鍵送入學習模式做逐句語塊拆解 -->
+        <div style="margin-top: 16px;">
+          <button type="button" class="btn btn-success" id="btn-send-ocr-to-learn" style="width: 100%; min-height: 50px; font-size: 1.02rem;">
+            🔍 將圖片文字送入「📖 學習模式」進行逐句語塊拆解與發音練習
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       區塊 C：🗣️ 雙向即時溝通模式（我說中文 ⇄ 對方說英/日/韓/越）
+       ========================================== -->
+  <div id="panel-voice-mode" style="display: none;">
+    <div class="card">
+      <div class="voice-mode-header">
+        <div class="direction-badge" id="voice-direction-badge">
+          🔄 雙向溝通模式：🇹🇼 繁體中文 ⇄ 🇺🇸 English
+        </div>
+        <span class="https-hint">💡 支援雙向語音辨識與雙向自動朗讀</span>
+      </div>
+
+      <!-- 步驟 1：先選擇對方的語言（英／日／韓／越） -->
+      <div class="form-group">
+        <label class="section-label">① 選擇對方使用的語言（英／日／韓／越）：</label>
+        <div class="target-lang-buttons">
+          <button type="button" class="target-lang-btn active" id="btn-target-en" data-target="en">
+            🇺🇸 English
+          </button>
+          <button type="button" class="target-lang-btn" id="btn-target-ja" data-target="ja">
+            🇯🇵 日本語
+          </button>
+          <button type="button" class="target-lang-btn" id="btn-target-ko" data-target="ko">
+            🇰🇷 한국어
+          </button>
+          <button type="button" class="target-lang-btn" id="btn-target-vi" data-target="vi">
+            🇻🇳 Tiếng Việt
+          </button>
+        </div>
+      </div>
+
+      <div id="voice-status-box" class="status-msg status-error"></div>
+
+      <!-- 步驟 2：雙向麥克風（左：我說中文 → 翻外語；右：對方說外語 → 翻繁體中文） -->
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label class="section-label">② 點擊對應麥克風開始說話（支援雙向即時口譯）：</label>
+      </div>
+      <div class="dual-mic-grid">
+        <!-- 我方（中文） -->
+        <div class="mic-card active-side" id="mic-card-me">
+          <div class="mic-speaker-label" id="label-mic-me">🙋‍♂️ 【 我說中文 (🇹🇼 繁體中文) 】</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px;" id="sub-mic-me">說中文 ➔ 自動翻成 🇺🇸 English 朗讀</div>
+          <button type="button" class="btn-mic-large" id="btn-start-mic">
+            🎤 我說中文
+          </button>
+        </div>
+
+        <!-- 對方（外語） -->
+        <div class="mic-card partner-side" id="mic-card-partner">
+          <div class="mic-speaker-label" id="label-mic-partner">🧑 【 對方說外語 (🇺🇸 English) 】</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px;" id="sub-mic-partner">對方說外語 ➔ 自動翻成 🇹🇼 繁體中文朗讀</div>
+          <button type="button" class="btn-mic-large btn-mic-partner" id="btn-start-mic-partner">
+            🎤 對方說 English
+          </button>
+        </div>
+      </div>
+
+      <div class="mic-status-hint" id="mic-status-hint" style="text-align:center; margin-bottom:14px;">
+        👆 點擊左方「🎤 我說中文」或右方「🎤 對方說外語」開始雙向對話，也可在下方直接打字
+      </div>
+
+      <!-- 步驟 3：語音辨識／文字輸入框（可切換「我說中文」或「對方說外語」） -->
+      <div class="form-group">
+        <div class="label-with-action">
+          <label class="section-label" for="voice-zh-input" id="voice-input-label" style="margin-bottom:0;">輸入或修改要翻譯的句子（目前方向：🇹🇼 我說中文 ➔ 🇺🇸 English）：</label>
+          <div class="speaker-role-switch">
+            <button type="button" class="role-pill-btn active" id="btn-role-me">🙋‍♂️ 我方輸入 (中文➔外語)</button>
+            <button type="button" class="role-pill-btn" id="btn-role-partner">🧑 對方輸入 (外語➔中文)</button>
+          </div>
+        </div>
+        <textarea id="voice-zh-input" style="min-height: 88px;" placeholder="輸入中文或外語句子...">請問這附近有便利商店嗎？</textarea>
+      </div>
+
+      <div class="quick-examples-bar">
+        <span style="font-size:0.84rem; color:var(--text-muted); display:flex; align-items:center;">雙向快速測試：</span>
+        <button type="button" class="example-chip voice-sample-chip" data-role="me" data-text="請問這附近有便利商店嗎？">🙋‍♂️ 我說：請問這附近有便利商店嗎？</button>
+        <button type="button" class="example-chip voice-sample-chip" data-role="me" data-text="我想預約兩個人的晚餐。">🙋‍♂️ 我說：我想預約兩個人的晚餐。</button>
+        <button type="button" class="example-chip voice-sample-chip" data-role="partner" data-text="Go straight for two blocks and turn right.">🧑 對方說(英)：Go straight for two blocks...</button>
+        <button type="button" class="example-chip voice-sample-chip" data-role="partner" data-text="かしこまりました。お名前をお伺いしてもよろしいですか？" data-partner-lang="ja">🧑 對方說(日)：かしこまりました。お名前を...</button>
+        <button type="button" class="example-chip voice-sample-chip" data-role="partner" data-text="네, 저기 사거리 모퉁이에 편의점이 있습니다." data-partner-lang="ko">🧑 對方說(韓)：네, 저기 사거리 모퉁이에...</button>
+        <button type="button" class="example-chip voice-sample-chip" data-role="partner" data-text="Dạ có, cửa hàng tiện lợi ở ngay góc đường phía trước." data-partner-lang="vi">🧑 對方說(越)：Dạ có, cửa hàng tiện lợi...</button>
+      </div>
+
+      <!-- 自動朗讀選項 -->
+      <div class="auto-speak-row">
+        <label class="checkbox-label" for="chk-auto-speak">
+          <input type="checkbox" id="chk-auto-speak" checked="">
+          <span>翻譯完成後自動朗讀目標語言</span>
+        </label>
+        <span style="font-size:0.82rem; color:var(--text-muted);" id="voice-lang-code-indicator">目標發音語音：en-US</span>
+      </div>
+
+      <!-- 步驟 4：翻譯並朗讀按鈕 -->
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" id="btn-translate-speak" style="width: 100%; min-height: 52px; font-size: 1.06rem;">
+          🔄 立即翻譯並朗讀
+        </button>
+      </div>
+
+      <!-- 步驟 5：最新翻譯結果與正常／慢速播放 -->
+      <div class="voice-output-box" id="voice-output-box">
+        <div class="voice-output-label">
+          <span id="voice-output-lang-tag">翻譯結果 (🇺🇸 English)</span>
+        </div>
+        <div class="voice-output-main" id="voice-output-text">Is there a convenience store nearby?</div>
+        <div class="voice-play-buttons">
+          <button type="button" class="btn btn-primary" id="btn-voice-play-normal">
+            🔊 正常播放
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-voice-play-slow" style="background:#ffffff;">
+            🐢 慢速播放
+          </button>
+        </div>
+      </div>
+
+      <!-- 步驟 6：雙向對話紀錄 -->
+      <div class="chat-history-box" id="chat-history-box" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.9rem; font-weight:700; color:var(--text-main);">💬 雙向對話紀錄（點擊可重播語音）</span>
+          <button type="button" class="tts-btn" id="btn-clear-chat-history">🗑️ 清空紀錄</button>
+        </div>
+        <div class="chat-history-list" id="chat-history-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       區塊 D：🌏 旅人社群與體驗回饋（即時在線人數 ＋ 旅遊/學習互助留言牆，支援 Netlify 部署）
+       ========================================== -->
+  <div id="panel-community-mode" style="display: none;">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+        <div>
+          <h2 style="font-size:1.18rem; font-weight:800; color:var(--text-main); margin:0;">🌏 即時在線旅人與學習者互動廣場</h2>
+          <p style="font-size:0.86rem; color:var(--text-muted); margin-top:4px;">無論您是發布在 Netlify 分享給朋友、正在國外旅遊點餐問路，或在家自學外語，都歡迎留下體驗回饋與實用好句幫助更多人！</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="tts-btn" id="btn-copy-site-url" title="複製目前網頁連結分享給旅伴">
+            🔗 複製網頁連結分享
+          </button>
+          <button type="button" class="tts-btn" id="btn-refresh-community" title="立即同步最新在線人數與留言">
+            🔄 重新整理動態
+          </button>
+        </div>
+      </div>
+
+      <!-- 即時在線數據看板 -->
+      <div class="community-stats-grid">
+        <div class="stat-box highlight-green">
+          <div class="stat-value">
+            <span class="pulse-dot"></span>
+            <span id="stat-online-count">1</span>
+            <span style="font-size:0.9rem; font-weight:600; color:#059669;">人正在線上</span>
+          </div>
+          <div class="stat-label" id="stat-online-breakdown">即時動態：📖 正在自學外語 ×1</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-value">
+            <span id="stat-total-visits">129</span>
+            <span style="font-size:0.9rem; font-weight:600; color:var(--primary);">人次累計使用</span>
+          </div>
+          <div class="stat-label">幫助出國旅遊溝通與多語學習者</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-value">
+            <span id="stat-comment-count">3</span>
+            <span style="font-size:0.9rem; font-weight:600; color:#d97706;">則經驗與好句分享</span>
+          </div>
+          <div class="stat-label">所有分享句子皆可一鍵聽發音與拆解</div>
+        </div>
+      </div>
+
+      <!-- 選擇您目前的使用狀態（即時顯示在線上動態中） -->
+      <div class="presence-status-bar">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+          <span style="font-size:0.88rem; font-weight:700; color:var(--text-main);">📍 打個招呼！標記您目前正在哪裡使用這個工具：</span>
+          <span style="font-size:0.8rem; color:var(--text-muted);" id="my-presence-status-label">目前標記：📖 正在自學外語</span>
+        </div>
+        <div class="status-chip-row" id="presence-tag-group">
+          <button type="button" class="status-tag-btn active" data-presence-tag="📖 正在自學外語">📖 正在自學外語</button>
+          <button type="button" class="status-tag-btn" data-presence-tag="🇯🇵 正在日本旅遊">🇯🇵 正在日本旅遊</button>
+          <button type="button" class="status-tag-btn" data-presence-tag="🇻🇳 正在越南旅遊">🇻🇳 正在越南旅遊</button>
+          <button type="button" class="status-tag-btn" data-presence-tag="🇰🇷 正在韓國旅遊">🇰🇷 正在韓國旅遊</button>
+          <button type="button" class="status-tag-btn" data-presence-tag="🇺🇸 歐美旅遊／出差">🇺🇸 歐美旅遊／出差</button>
+        </div>
+      </div>
+
+      <!-- 發表體驗回饋與實用句分享表單 -->
+      <div class="feedback-form-box">
+        <div style="font-size:1rem; font-weight:800; color:var(--text-main); margin-bottom:12px;">
+          ✍️ 留下您的使用體驗回饋（或分享一句旅遊必備外語給大家）
+        </div>
+
+        <div class="form-row-2col">
+          <div>
+            <label class="section-label" for="comm-author-input" style="font-size:0.85rem;">您的暱稱：</label>
+            <input type="text" id="comm-author-input" class="text-input" placeholder="例如：台中旅人小陳、自由行背包客..." maxlength="30">
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div>
+              <label class="section-label" for="comm-scene-select" style="font-size:0.85rem;">使用情境：</label>
+              <select id="comm-scene-select" class="select-input">
+                <option value="🇯🇵 日本旅遊">🇯🇵 日本旅遊</option>
+                <option value="🇻🇳 越南旅遊">🇻🇳 越南旅遊</option>
+                <option value="🇰🇷 韓國旅遊">🇰🇷 韓國旅遊</option>
+                <option value="🇺🇸 歐美旅遊">🇺🇸 歐美旅遊</option>
+                <option value="📖 語言自學">📖 語言自學</option>
+              </select>
+            </div>
+            <div>
+              <label class="section-label" for="comm-rating-select" style="font-size:0.85rem;">使用評分：</label>
+              <select id="comm-rating-select" class="select-input">
+                <option value="5" selected="">⭐⭐⭐⭐⭐ (5星超讚)</option>
+                <option value="4">⭐⭐⭐⭐ (4星實用)</option>
+                <option value="3">⭐⭐⭐ (3星不錯)</option>
+                <option value="2">⭐⭐ (2星建議改進)</option>
+                <option value="1">⭐ (1星)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:10px;">
+          <label class="section-label" for="comm-content-input" style="font-size:0.85rem;">使用心得、旅遊實測經驗或給其他旅人的幫助與建議：</label>
+          <textarea id="comm-content-input" style="min-height:82px; background:#ffffff;" placeholder="分享您在哪裡使用這個工具、覺得哪個功能最有幫助，或是給其他出國旅人／學習者的小提醒..."></textarea>
+        </div>
+
+        <!-- 選填：附帶分享一句實用外語句子 -->
+        <div class="optional-phrase-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <span style="font-size:0.85rem; font-weight:700; color:var(--primary);">💡 選填：順便附上一句您在當地覺得超好用的外語句子（其他旅人可直接點聽發音！）</span>
+            <button type="button" class="tts-btn" id="btn-comm-auto-translate-phrase" style="font-size:0.78rem;">
+              ✨ 輸入中文或外語自動幫我互翻填寫
+            </button>
+          </div>
+          <div style="display:grid; grid-template-columns: 140px 1fr 1fr; gap:8px;" class="comm-phrase-grid">
+            <select id="comm-phrase-lang" class="select-input">
+              <option value="ja">🇯🇵 日文句子</option>
+              <option value="vi">🇻🇳 越語句子</option>
+              <option value="ko">🇰🇷 韓語句子</option>
+              <option value="en">🇺🇸 英文句子</option>
+            </select>
+            <input type="text" id="comm-phrase-text" class="text-input" placeholder="外語原句（例：すみません、お会計をお願いします）">
+            <input type="text" id="comm-phrase-meaning" class="text-input" placeholder="中文意思（例：不好意思，麻煩請幫我結帳）">
+          </div>
+        </div>
+
+        <div id="comm-status-box" class="status-msg status-error"></div>
+
+        <button type="button" class="btn btn-primary" id="btn-submit-comment" style="width:100%;">
+          🚀 發布留言回饋與實用句分享
+        </button>
+      </div>
+
+      <!-- 旅人回饋與好句篩選列 -->
+      <div class="comment-filter-bar">
+        <div style="font-size:0.98rem; font-weight:800; color:var(--text-main);">
+          💬 旅人與學習者真實體驗回饋牆
+        </div>
+        <div class="status-chip-row" id="comment-filter-group">
+          <button type="button" class="status-tag-btn active" data-filter="all">全部留言</button>
+          <button type="button" class="status-tag-btn" data-filter="🇯🇵 日本旅遊">🇯🇵 日本旅遊</button>
+          <button type="button" class="status-tag-btn" data-filter="🇻🇳 越南旅遊">🇻🇳 越南旅遊</button>
+          <button type="button" class="status-tag-btn" data-filter="🇰🇷 韓國旅遊">🇰🇷 韓國旅遊</button>
+          <button type="button" class="status-tag-btn" data-filter="🇺🇸 歐美旅遊">🇺🇸 歐美旅遊</button>
+          <button type="button" class="status-tag-btn" data-filter="📖 語言自學">📖 語言自學</button>
+        </div>
+      </div>
+
+      <!-- 留言列表容器 -->
+      <div class="comment-list" id="community-comment-list"><div class="comment-card"><div class="comment-header"><div class="comment-author-wrap"><span class="comment-author">👤 台北旅人阿哲</span><span class="comment-scene-badge">🇯🇵 日本旅遊</span><span class="comment-stars">★★★★★</span></div><span class="comment-time">2026-10-01 19:20</span></div><div class="comment-body">在京都住溫泉旅館時，女將說了「お早いお着きでございます」，原本用一般翻譯軟體翻得很奇怪，貼到這裡不但翻出「您到得真早」，連敬語語塊都拆得很清楚！另外分享一句在餐廳超好用的結帳日文給大家：</div><div class="shared-phrase-card"><div style="flex: 1 1 0%;"><div style="font-size: 0.78rem; font-weight: 700; color: var(--primary);">💡 旅人推薦實用句 (🇯🇵 日本語)：</div><div style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-top: 2px;">すみません、お会計をお願いします。</div><div style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">中文意思：不好意思，麻煩請幫我結帳。</div></div><div class="tts-controls"><button type="button" class="tts-btn">🔊 聽發音</button><button type="button" class="tts-btn">📖 送入學習拆解</button></div></div><div class="comment-footer"><span style="font-size: 0.8rem; color: var(--text-muted);">覺得這則經驗對旅遊或學習有幫助嗎？</span><button type="button" class="btn-like-comment">👍 有幫助 (<span>18</span>)</button></div></div><div class="comment-card"><div class="comment-header"><div class="comment-author-wrap"><span class="comment-author">👤 薇薇 Vivian</span><span class="comment-scene-badge">🇻🇳 越南旅遊</span><span class="comment-stars">★★★★★</span></div><span class="comment-time">2026-10-01 21:45</span></div><div class="comment-body">去胡志明市跟峴港自由行全靠這個網頁！以前越語發音自己唸店員都聽不懂，換成這裡的雲端真人越語發音後，點咖啡跟問路一次就通！推薦大家買東西必備這句：</div><div class="shared-phrase-card"><div style="flex: 1 1 0%;"><div style="font-size: 0.78rem; font-weight: 700; color: var(--primary);">💡 旅人推薦實用句 (🇻🇳 Tiếng Việt)：</div><div style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-top: 2px;">Xin hỏi cái này giá bao nhiêu tiền?</div><div style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">中文意思：請問這個價錢多少錢？</div></div><div class="tts-controls"><button type="button" class="tts-btn">🔊 聽發音</button><button type="button" class="tts-btn">📖 送入學習拆解</button></div></div><div class="comment-footer"><span style="font-size: 0.8rem; color: var(--text-muted);">覺得這則經驗對旅遊或學習有幫助嗎？</span><button type="button" class="btn-like-comment">👍 有幫助 (<span>15</span>)</button></div></div><div class="comment-card"><div class="comment-header"><div class="comment-author-wrap"><span class="comment-author">👤 Kevin 韓國跑單幫</span><span class="comment-scene-badge">🇰🇷 韓國旅遊</span><span class="comment-stars">★★★★★</span></div><span class="comment-time">2026-10-02 08:15</span></div><div class="comment-body">雙向即時溝通模式超實用！在首爾弘大搭計程車跟去藥局買東西時，我按左邊說中文、司機按右邊說韓文，雙向對話紀錄清清楚楚，連拍照翻菜單也很快！</div><div class="shared-phrase-card"><div style="flex: 1 1 0%;"><div style="font-size: 0.78rem; font-weight: 700; color: var(--primary);">💡 旅人推薦實用句 (🇰🇷 한국어)：</div><div style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-top: 2px;">영수증 주세요. 포장해 주세요.</div><div style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">中文意思：請給我收據。請幫我外帶打包。</div></div><div class="tts-controls"><button type="button" class="tts-btn">🔊 聽發音</button><button type="button" class="tts-btn">📖 送入學習拆解</button></div></div><div class="comment-footer"><span style="font-size: 0.8rem; color: var(--text-muted);">覺得這則經驗對旅遊或學習有幫助嗎？</span><button type="button" class="btn-like-comment">👍 有幫助 (<span>12</span>)</button></div></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================================
+  // 1. 多國語言設定與語音代碼對照 (英 en / 日 ja / 韓 ko / 越 vi / 繁中 zh-TW)
+  // ============================================================================
+  const LANG_META = {
+    en: { name: "🇺🇸 English", ttsCode: "en-US", prefix: "en", tesseractCode: "eng" },
+    ja: { name: "🇯🇵 日本語", ttsCode: "ja-JP", prefix: "ja", tesseractCode: "jpn" },
+    ko: { name: "🇰🇷 한국어", ttsCode: "ko-KR", prefix: "ko", tesseractCode: "kor" },
+    vi: { name: "🇻🇳 Tiếng Việt", ttsCode: "vi-VN", prefix: "vi", tesseractCode: "vie" },
+    "zh-TW": { name: "🇹🇼 繁體中文", ttsCode: "zh-TW", prefix: "zh", tesseractCode: "chi_tra" }
+  };
+
+  // 英文慣用片語與核心詞庫
+  const ENGLISH_IDIOMS = [
+    "i would like to", "would like to", "make a dinner reservation", "make a reservation",
+    "for two", "people and groups", "people with access", "with access",
+    "international criminal court", "chief prosecutor", "sexual assault", "on friday",
+    "over allegations", "a new period of", "in order to", "as well as", "according to",
+    "because of", "due to", "instead of", "such as", "for example", "at least",
+    "take place", "look forward to", "pay attention to", "take care of",
+    "convenience store", "how do i get to", "is there"
+  ];
+
+  const ENGLISH_LEXICON = {
+    "i": "我",
+    "would like to": "想要……／希望……",
+    "i would like to": "我想要……",
+    "make a reservation": "預約／訂位",
+    "make a dinner reservation": "預約晚餐",
+    "for two": "兩位／兩個人",
+    "people": "人員／人們",
+    "and": "和／以及",
+    "groups": "群組／團體",
+    "with access": "具有存取權限",
+    "people and groups": "人員與群組",
+    "people with access": "具有存取權限的人員",
+    "can": "可以／能夠",
+    "manage": "管理",
+    "these": "這些",
+    "settings": "設定",
+    "the": "這／該",
+    "system": "系統",
+    "allows": "允許",
+    "users": "使用者",
+    "to": "去……",
+    "change": "變更／修改",
+    "their": "他們的"
+  };
+
+  // 日文固定表現、敬語與語法結構
+  const JAPANESE_FIXED_CHUNKS = [
+    { pattern: "お早いお着きでございます", meaning: "您到得真早。（鄭重敬語問候）" },
+    { pattern: "お早いお着き", meaning: "您到得很早／早早抵達" },
+    { pattern: "でございます", meaning: "是……（鄭重禮貌表現）" },
+    { pattern: "でいらっしゃいます", meaning: "是……（尊敬語表現）" },
+    { pattern: "おはようございます", meaning: "早安（禮貌問候）" },
+    { pattern: "ありがとうございます", meaning: "非常謝謝您" },
+    { pattern: "ありがとうございました", meaning: "非常感謝您（過去完成）" },
+    { pattern: "よろしくお願いいたします", meaning: "請多多指教／拜託您了" },
+    { pattern: "よろしくお願いします", meaning: "請多指教／麻煩您了" },
+    { pattern: "お待たせいたしました", meaning: "讓您久等了" },
+    { pattern: "いらっしゃいませ", meaning: "歡迎光臨" },
+    { pattern: "かしこまりました", meaning: "我知道了／遵命" },
+    { pattern: "どう行けばいいですか", meaning: "該怎麼走比較好呢？" },
+    { pattern: "予約したいです", meaning: "想要預約" },
+    { pattern: "予約しました", meaning: "已經預約了" },
+    { pattern: "どこですか", meaning: "在哪裡呢？" },
+    { pattern: "ありますか", meaning: "有……嗎？" },
+    { pattern: "ことができます", meaning: "能夠……／可以……" },
+    { pattern: "すみません", meaning: "不好意思／請問" },
+    { pattern: "こんにちは", meaning: "你好／午安" },
+    { pattern: "ありがとう", meaning: "謝謝" }
+  ];
+
+  const JAPANESE_GRAMMAR_MEANINGS = {
+    "でございます": "鄭重禮貌表現（相當於「是」）",
+    "ございます": "有／是（禮貌表現）",
+    "です": "是……（禮貌結尾）",
+    "ですか": "是……嗎？（禮貌疑問）",
+    "でした": "是……（過去禮貌結尾）",
+    "ました": "已經……了（過去式禮貌結尾）",
+    "ません": "不……／沒有……（否定禮貌結尾）",
+    "ませんか": "要不要……呢？（禮貌邀約／詢問）",
+    "ましょう": "一起……吧！（提議）",
+    "ください": "請……／請給我……",
+    "たいです": "想要……（表達願望）"
+  };
+
+  // 韓語常用慣用片語與語塊詞庫
+  const KOREAN_PHRASES_DB = [
+    { phrase: "예약하고 싶습니다", meaning: "想要預約（禮貌敬語）" },
+    { phrase: "예약하고 싶어요", meaning: "想要預約" },
+    { phrase: "두 명", meaning: "兩位／兩個人" },
+    { phrase: "저녁 식사를", meaning: "晚餐（受詞）" },
+    { phrase: "저녁 식사", meaning: "晚餐" },
+    { phrase: "근처에", meaning: "在附近" },
+    { phrase: "편의점이", meaning: "便利商店（主詞）" },
+    { phrase: "있나요", meaning: "有嗎？（親切疑問）" },
+    { phrase: "있습니까", meaning: "有嗎？（正式敬語）" },
+    { phrase: "역까지는", meaning: "到車站為止" },
+    { phrase: "어떻게 가나요", meaning: "該怎麼走呢？" },
+    { phrase: "어떻게 갑니까", meaning: "該怎麼去呢？" },
+    { phrase: "얼마인가요", meaning: "多少錢呢？" },
+    { phrase: "얼마입니까", meaning: "是多少錢呢？" },
+    { phrase: "안녕하세요", meaning: "你好（常用敬語問候）" },
+    { phrase: "감사합니다", meaning: "謝謝您" },
+    { phrase: "죄송합니다", meaning: "對不起／不好意思" },
+    { phrase: "잠시만요", meaning: "借過一下／請稍等" },
+    { phrase: "주세요", meaning: "請給我……" }
+  ];
+
+  // 越南語雙音節複合詞與常用片語庫（含標準北越／通用發音諧音提示，輔助掌握六聲調）
+  const VIETNAMESE_PHRASES_DB = [
+    { phrase: "cửa hàng tiện lợi", meaning: "便利商店", pron: "[gửa hàng 甸 雷]" },
+    { phrase: "đặt bàn ăn tối", meaning: "預約晚餐桌位", pron: "[đặt ㄅㄢˋ ㄢ 兜ˊ]" },
+    { phrase: "cho hai người", meaning: "給兩個人／兩位", pron: "[jo 嗨 ŋừi]" },
+    { phrase: "bao nhiêu tiền", meaning: "多少錢", pron: "[包 妞 ㄉㄧㄢˋ]" },
+    { phrase: "như thế nào", meaning: "怎麼樣／如何", pron: "[如 ㄊㄟˊ 腦ˋ]" },
+    { phrase: "tôi muốn", meaning: "我想要……", pron: "[兜 ㄇㄨㄥˊ]" },
+    { phrase: "xin hỏi", meaning: "請問／不好意思請問", pron: "[sin 好ˇ]" },
+    { phrase: "xin chào", meaning: "你好", pron: "[sin 找ˋ]" },
+    { phrase: "cảm ơn", meaning: "謝謝", pron: "[敢ˇ 恩]" },
+    { phrase: "xin lỗi", meaning: "對不起／不好意思", pron: "[sin 摟ˇ]" },
+    { phrase: "gần đây", meaning: "這附近", pron: "[艮ˋ ㄉㄟ]" },
+    { phrase: "đặt bàn", meaning: "訂位／預約餐桌", pron: "[đặt ㄅㄢˋ]" },
+    { phrase: "đặt chỗ", meaning: "預約位置", pron: "[đặt 九ˇ]" },
+    { phrase: "ăn tối", meaning: "吃晚餐／晚餐", pron: "[ㄢ 兜ˊ]" },
+    { phrase: "nhà hàng", meaning: "餐廳", pron: "[娘ˋ 行ˋ]" },
+    { phrase: "khách sạn", meaning: "飯店／旅館", pron: "[凱ˊ 散]" },
+    { phrase: "nhà ga", meaning: "車站／火車站", pron: "[娘ˋ 嘎]" },
+    { phrase: "sân bay", meaning: "機場", pron: "[森 掰]" },
+    { phrase: "cà phê", meaning: "咖啡", pron: "[嘎ˋ 啡]" },
+    { phrase: "ở đâu", meaning: "在哪裡", pron: "[耳ˇ 兜]" },
+    { phrase: "hôm nay", meaning: "今天", pron: "[轟 奈]" },
+    { phrase: "ngày mai", meaning: "明天", pron: "[呆ˋ 買]" },
+    { phrase: "nào không", meaning: "有……嗎？（疑問句尾）", pron: "[腦ˋ 空]" }
+  ];
+
+  const VIETNAMESE_SINGLE_PRON = {
+    "tôi": "[兜]",
+    "muốn": "[ㄇㄨㄥˊ]",
+    "cho": "[jo]",
+    "hai": "[嗨]",
+    "người": "[ŋừi]",
+    "có": "[搞ˊ]",
+    "không": "[空]",
+    "đi": "[滴]",
+    "đến": "[ㄉㄟㄣˊ]",
+    "cái": "[蓋ˊ]",
+    "này": "[乃ˋ]",
+    "giá": "[雅ˊ]"
+  };
+
+  // ============================================================================
+  // 2. DOM 元素參照
+  // ============================================================================
+  const btnDownloadSelf = document.getElementById("btn-download-self");
+  const btnHeaderOnlinePill = document.getElementById("btn-header-online-pill");
+  const headerOnlineText = document.getElementById("header-online-text");
+  const tabLearnMode = document.getElementById("tab-learn-mode");
+  const tabPhotoMode = document.getElementById("tab-photo-mode");
+  const tabVoiceMode = document.getElementById("tab-voice-mode");
+  const tabCommunityMode = document.getElementById("tab-community-mode");
+  const tabOnlineBadge = document.getElementById("tab-online-badge");
+  const panelLearnMode = document.getElementById("panel-learn-mode");
+  const panelPhotoMode = document.getElementById("panel-photo-mode");
+  const panelVoiceMode = document.getElementById("panel-voice-mode");
+  const panelCommunityMode = document.getElementById("panel-community-mode");
+
+  const btnJumpPhoto = document.getElementById("btn-jump-photo");
+  const btnPasteClipboard = document.getElementById("btn-paste-clipboard");
+  const btnClearInputInline = document.getElementById("btn-clear-input-inline");
+  const btnLoadDemoBanner = document.getElementById("btn-load-demo-banner");
+  const inputCharCounter = document.getElementById("input-char-counter");
+  const inputText = document.getElementById("input-text");
+  const btnAnalyze = document.getElementById("btn-analyze");
+  const btnClear = document.getElementById("btn-clear");
+  const outputCard = document.getElementById("output-card");
+  const analysisResults = document.getElementById("analysis-results");
+  const statusBox = document.getElementById("status-box");
+  const progressBox = document.getElementById("progress-box");
+  const progressFill = document.getElementById("progress-fill");
+  const progressText = document.getElementById("progress-text");
+
+  // Photo / OCR DOM
+  const fileUploadInput = document.getElementById("file-upload-input");
+  const cameraCaptureInput = document.getElementById("camera-capture-input");
+  const photoDropZone = document.getElementById("photo-drop-zone");
+  const btnTriggerCamera = document.getElementById("btn-trigger-camera");
+  const btnTriggerWebcam = document.getElementById("btn-trigger-webcam");
+  const btnTriggerUpload = document.getElementById("btn-trigger-upload");
+  const cameraLiveBox = document.getElementById("camera-live-box");
+  const cameraVideo = document.getElementById("camera-video");
+  const btnSnapPhoto = document.getElementById("btn-snap-photo");
+  const btnCloseCamera = document.getElementById("btn-close-camera");
+  const photoStatusBox = document.getElementById("photo-status-box");
+  const photoPreviewWrap = document.getElementById("photo-preview-wrap");
+  const photoPreviewImg = document.getElementById("photo-preview-img");
+  const photoMetaLabel = document.getElementById("photo-meta-label");
+  const btnReOcr = document.getElementById("btn-re-ocr");
+  const btnClearPhoto = document.getElementById("btn-clear-photo");
+  const photoProgressBox = document.getElementById("photo-progress-box");
+  const photoProgressFill = document.getElementById("photo-progress-fill");
+  const photoProgressText = document.getElementById("photo-progress-text");
+  const photoResultSection = document.getElementById("photo-result-section");
+  const ocrDetectedLangLabel = document.getElementById("ocr-detected-lang-label");
+  const ocrTargetLangLabel = document.getElementById("ocr-target-lang-label");
+  const ocrExtractedTextarea = document.getElementById("ocr-extracted-textarea");
+  const ocrTranslatedOutput = document.getElementById("ocr-translated-output");
+  const btnRetranslateEditedOcr = document.getElementById("btn-retranslate-edited-ocr");
+  const btnOcrSpeakOrig = document.getElementById("btn-ocr-speak-orig");
+  const btnOcrSpeakOrigSlow = document.getElementById("btn-ocr-speak-orig-slow");
+  const btnOcrSpeakTrans = document.getElementById("btn-ocr-speak-trans");
+  const btnOcrSpeakTransSlow = document.getElementById("btn-ocr-speak-trans-slow");
+  const btnOcrCopyTrans = document.getElementById("btn-ocr-copy-trans");
+  const btnSendOcrToLearn = document.getElementById("btn-send-ocr-to-learn");
+
+  // Voice Mode DOM
+  const voiceDirectionBadge = document.getElementById("voice-direction-badge");
+  const voiceStatusBox = document.getElementById("voice-status-box");
+  const btnStartMic = document.getElementById("btn-start-mic");
+  const micStatusHint = document.getElementById("mic-status-hint");
+  const voiceZhInput = document.getElementById("voice-zh-input");
+  const targetLangBtns = document.querySelectorAll(".target-lang-btn");
+  const chkAutoSpeak = document.getElementById("chk-auto-speak");
+  const voiceLangCodeIndicator = document.getElementById("voice-lang-code-indicator");
+  const btnTranslateSpeak = document.getElementById("btn-translate-speak");
+  const voiceOutputLangTag = document.getElementById("voice-output-lang-tag");
+  const voiceOutputText = document.getElementById("voice-output-text");
+  const btnVoicePlayNormal = document.getElementById("btn-voice-play-normal");
+  const btnVoicePlaySlow = document.getElementById("btn-voice-play-slow");
+
+  // ============================================================================
+  // 3. 右上角「⬇️ 下載 HTML 檔案」功能
+  // ============================================================================
+  btnDownloadSelf.addEventListener("click", () => {
+    const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "index.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  // ============================================================================
+  // 4. 模式切換（📖 學習模式 vs 📷 拍照／圖片翻譯 vs 🗣️ 雙向即時溝通 vs 🌏 旅人社群與回饋）
+  // ============================================================================
+  function switchActiveMode(mode) {
+    stopWebcamStream();
+    const isLearn = mode === "learn";
+    const isPhoto = mode === "photo";
+    const isVoice = mode === "voice";
+    const isCommunity = mode === "community";
+
+    tabLearnMode.classList.toggle("active", isLearn);
+    tabLearnMode.setAttribute("aria-selected", String(isLearn));
+    tabPhotoMode.classList.toggle("active", isPhoto);
+    tabPhotoMode.setAttribute("aria-selected", String(isPhoto));
+    tabVoiceMode.classList.toggle("active", isVoice);
+    tabVoiceMode.setAttribute("aria-selected", String(isVoice));
+    if (tabCommunityMode) {
+      tabCommunityMode.classList.toggle("active", isCommunity);
+      tabCommunityMode.setAttribute("aria-selected", String(isCommunity));
+    }
+
+    panelLearnMode.style.display = isLearn ? "block" : "none";
+    panelPhotoMode.style.display = isPhoto ? "block" : "none";
+    panelVoiceMode.style.display = isVoice ? "block" : "none";
+    if (panelCommunityMode) {
+      panelCommunityMode.style.display = isCommunity ? "block" : "none";
+    }
+
+    if (isVoice) {
+      checkVoiceEnvironmentHint();
+    }
+    if (isCommunity && typeof syncCommunityData === "function") {
+      syncCommunityData(false);
+    }
+  }
+
+  tabLearnMode.addEventListener("click", () => switchActiveMode("learn"));
+  tabPhotoMode.addEventListener("click", () => switchActiveMode("photo"));
+  tabVoiceMode.addEventListener("click", () => switchActiveMode("voice"));
+  if (tabCommunityMode) {
+    tabCommunityMode.addEventListener("click", () => switchActiveMode("community"));
+  }
+  if (btnHeaderOnlinePill) {
+    btnHeaderOnlinePill.addEventListener("click", () => switchActiveMode("community"));
+  }
+
+  btnJumpPhoto.addEventListener("click", () => {
+    switchActiveMode("photo");
+  });
+
+  document.querySelectorAll(".example-chip:not(.voice-sample-chip):not(.photo-sample-chip)").forEach(chip => {
+    chip.addEventListener("click", () => {
+      inputText.value = chip.getAttribute("data-sample") || "";
+      if (chip.getAttribute("data-force-zh") === "true") {
+        setLearnSourceLang("zh-TW");
+        if (selectedLearnTargetLang === "auto-zh") {
+          setLearnTargetLang("en");
+        }
+      }
+      btnAnalyze.click();
+    });
+  });
+
+  // ============================================================================
+  // 5. 自動語言偵測（支援 繁體中文 zh-TW / 日文 ja / 韓語 ko / 越南語 vi / 英文 en）
+  // ============================================================================
+  function detectSentenceLanguage(text) {
+    const s = (text || "").trim();
+    if (!s) return "en";
+
+    // 1. 韓語諺文 (Hangul)
+    if (/[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/.test(s)) {
+      return "ko";
+    }
+
+    // 2. 日文平假名或片假名（只要含有假名即判定為日文）
+    if (/[\u3040-\u309F\u30A0-\u30FF]/.test(s)) {
+      return "ja";
+    }
+
+    // 3. 越南語專屬聲調與變音字母或常見越文詞彙
+    if (/[ăâđêôơưĂÂĐÊÔƠƯáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/.test(s) ||
+        /\b(xin chào|cảm ơn|nhà hàng|khách sạn|tôi muốn|bao nhiêu)\b/i.test(s)) {
+      return "vi";
+    }
+
+    // 4. 漢字判斷：若無平假名／片假名，除日文專屬和製漢字外，皆判定為繁體中文 (zh-TW)
+    if (/[\u4E00-\u9FFF]/.test(s)) {
+      if (/[駅働込畑峠辻々〆]|(予約|日本語)/.test(s) && !/[請問嗎呢吧這那裡們想點餐錢]/.test(s)) {
+        return "ja";
+      }
+      return "zh-TW";
+    }
+
+    return "en";
+  }
+
+  // ============================================================================
+  // 6. 翻譯服務實作（支援 英/日/韓/越 ↔ 繁體中文）
+  // ============================================================================
+  const VERIFIED_SENTENCE_TRANSLATIONS = {
+    "ja|zh-TW": {
+      "お早いお着きでございます": "您到得真早。",
+      "お早いお着きでございます。": "您到得真早。"
+    },
+    "ko|zh-TW": {
+      "두 명 저녁 식사를 예약하고 싶습니다": "我想預約兩個人的晚餐。",
+      "두 명 저녁 식사를 예약하고 싶습니다.": "我想預約兩個人的晚餐。"
+    },
+    "vi|zh-TW": {
+      "Tôi muốn đặt bàn ăn tối cho hai người": "我想預約兩個人的晚餐。",
+      "Tôi muốn đặt bàn ăn tối cho hai người.": "我想預約兩個人的晚餐。"
+    },
+    "zh-TW|en": {
+      "請問這附近有便利商店嗎": "Is there a convenience store nearby?",
+      "請問這附近有便利商店嗎？": "Is there a convenience store nearby?",
+      "請問車站怎麼走": "How do I get to the station?",
+      "請問車站怎麼走？": "How do I get to the station?",
+      "我想預約兩個人的晚餐": "I would like to make a dinner reservation for two.",
+      "我想預約兩個人的晚餐。": "I would like to make a dinner reservation for two.",
+      "請問這個多少錢": "How much is this?",
+      "請問這個多少錢？": "How much is this?"
+    },
+    "zh-TW|ja": {
+      "請問這附近有便利商店嗎": "この近くにコンビニはありますか？",
+      "請問這附近有便利商店嗎？": "この近くにコンビニはありますか？",
+      "請問車站怎麼走": "駅へはどう行けばいいですか？",
+      "請問車站怎麼走？": "駅へはどう行けばいいですか？",
+      "我想預約兩個人的晚餐": "2人で夕食を予約したいです。",
+      "我想預約兩個人的晚餐。": "2人で夕食を予約したいです。",
+      "請問這個多少錢": "すみません、これはいくらですか？",
+      "請問這個多少錢？": "すみません、これはいくらですか？"
+    },
+    "zh-TW|ko": {
+      "請問這附近有便利商店嗎": "죄송하지만 이 근처에 편의점이 있나요?",
+      "請問這附近有便利商店嗎？": "죄송하지만 이 근처에 편의점이 있나요?",
+      "請問車站怎麼走": "역까지는 어떻게 가나요?",
+      "請問車站怎麼走？": "역까지는 어떻게 가나요?",
+      "我想預約兩個人的晚餐": "두 명 저녁 식사를 예약하고 싶습니다.",
+      "我想預約兩個人的晚餐。": "두 명 저녁 식사를 예약하고 싶습니다.",
+      "請問這個多少錢": "이것은 얼마인가요?",
+      "請問這個多少錢？": "이것은 얼마인가요?"
+    },
+    "zh-TW|vi": {
+      "請問這附近有便利商店嗎": "Xin hỏi gần đây có cửa hàng tiện lợi nào không?",
+      "請問這附近有便利商店嗎？": "Xin hỏi gần đây có cửa hàng tiện lợi nào không?",
+      "請問車站怎麼走": "Xin hỏi đi đến nhà ga như thế nào?",
+      "請問車站怎麼走？": "Xin hỏi đi đến nhà ga như thế nào?",
+      "我想預約兩個人的晚餐": "Tôi muốn đặt bàn ăn tối cho hai người.",
+      "我想預約兩個人的晚餐。": "Tôi muốn đặt bàn ăn tối cho hai người.",
+      "請問這個多少錢": "Xin hỏi cái này giá bao nhiêu tiền?",
+      "請問這個多少錢？": "Xin hỏi cái này giá bao nhiêu tiền?"
+    }
+  };
+
+  async function translateTextPair(text, sourceLang, targetLang = "zh-TW") {
+    const clean = (text || "").trim();
+    if (!clean) return "";
+    if (sourceLang === targetLang) return clean;
+
+    const pairKey = `${sourceLang}|${targetLang}`;
+    if (VERIFIED_SENTENCE_TRANSLATIONS[pairKey] && VERIFIED_SENTENCE_TRANSLATIONS[pairKey][clean]) {
+      return VERIFIED_SENTENCE_TRANSLATIONS[pairKey][clean];
+    }
+
+    // Primary: Google Translate GTX Endpoint
+    try {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(sourceLang)}&tl=${encodeURIComponent(targetLang)}&dt=t&q=${encodeURIComponent(clean)}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data[0])) {
+          const joined = data[0].map(item => item[0]).join("").trim();
+          if (joined) return joined;
+        }
+      }
+    } catch (e) {
+      console.warn("Primary translation endpoint warning:", e);
+    }
+
+    // Secondary Fallback: MyMemory API
+    try {
+      const pair = `${sourceLang}|${targetLang}`;
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=${encodeURIComponent(pair)}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.responseData && data.responseData.translatedText) {
+          return data.responseData.translatedText.trim();
+        }
+      }
+    } catch (e) {
+      console.warn("Secondary translation endpoint warning:", e);
+    }
+
+    throw new Error("無法連接翻譯服務，請檢查網路連線後再試一次。");
+  }
+
+  async function translateText(text, sourceLang) {
+    return translateTextPair(text, sourceLang, "zh-TW");
+  }
+
+  // ============================================================================
+  // 7. 📷 拍照與圖片上傳 OCR 翻譯邏輯（支援雲端 AI 視覺與本地端 Tesseract.js 雙引擎）
+  // ============================================================================
+  let currentPhotoDataUrl = "";
+  let currentPhotoMimeType = "image/png";
+  let currentOcrDetectedLang = "en";
+  let currentOcrTargetLang = "zh-TW";
+  let activeWebcamStream = null;
+  let tesseractLoaded = false;
+
+  function showPhotoStatus(msg, type = "error") {
+    photoStatusBox.textContent = msg;
+    photoStatusBox.className = "status-msg " + (type === "info" ? "status-info" : "status-error");
+    photoStatusBox.style.display = "block";
+  }
+
+  function hidePhotoStatus() {
+    photoStatusBox.style.display = "none";
+  }
+
+  function showPhotoProgress(percent, text) {
+    photoProgressBox.style.display = "flex";
+    photoProgressFill.style.width = `${percent}%`;
+    photoProgressText.textContent = text;
+  }
+
+  function hidePhotoProgress() {
+    photoProgressBox.style.display = "none";
+  }
+
+  // 1) 手機相機與檔案選擇按鈕
+  btnTriggerCamera.addEventListener("click", () => {
+    cameraCaptureInput.value = "";
+    cameraCaptureInput.click();
+  });
+
+  btnTriggerUpload.addEventListener("click", () => {
+    fileUploadInput.value = "";
+    fileUploadInput.click();
+  });
+
+  fileUploadInput.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) handleImageFile(file);
+  });
+
+  cameraCaptureInput.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) handleImageFile(file);
+  });
+
+  // 2) 拖曳圖片上傳 (Drag & Drop)
+  photoDropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    photoDropZone.classList.add("dragover");
+  });
+
+  photoDropZone.addEventListener("dragleave", () => {
+    photoDropZone.classList.remove("dragover");
+  });
+
+  photoDropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    photoDropZone.classList.remove("dragover");
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      handleImageFile(file);
+    } else {
+      showPhotoStatus("⚠️ 請拖曳有效的圖片檔案（PNG / JPG / WEBP）。");
+    }
+  });
+
+  // 3) Ctrl+V 貼上剪貼簿截圖
+  window.addEventListener("paste", (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          switchActiveMode("photo");
+          handleImageFile(file);
+          break;
+        }
+      }
+    }
+  });
+
+  // 4) 網頁即時視訊鏡頭拍照 (WebRTC)
+  btnTriggerWebcam.addEventListener("click", async () => {
+    hidePhotoStatus();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showPhotoStatus("此瀏覽器不支援直接開啟視訊鏡頭，請點擊「📸 手機拍照」或「🖼️ 選擇圖片上傳」。");
+      return;
+    }
+    try {
+      stopWebcamStream();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false
+      });
+      activeWebcamStream = stream;
+      cameraVideo.srcObject = stream;
+      cameraLiveBox.style.display = "flex";
+    } catch (err) {
+      showPhotoStatus("無法開啟相機鏡頭（請確認瀏覽器已允許相機權限，或改用「🖼️ 選擇圖片上傳」）。");
+    }
+  });
+
+  function stopWebcamStream() {
+    if (activeWebcamStream) {
+      activeWebcamStream.getTracks().forEach(track => track.stop());
+      activeWebcamStream = null;
+    }
+    if (cameraVideo) {
+      cameraVideo.srcObject = null;
+    }
+    if (cameraLiveBox) {
+      cameraLiveBox.style.display = "none";
+    }
+  }
+
+  btnCloseCamera.addEventListener("click", () => {
+    stopWebcamStream();
+  });
+
+  btnSnapPhoto.addEventListener("click", () => {
+    if (!activeWebcamStream || !cameraVideo.videoWidth) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = cameraVideo.videoWidth;
+    canvas.height = cameraVideo.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+    stopWebcamStream();
+    loadAndProcessDataUrl(dataUrl, "image/jpeg", "📸 鏡頭拍攝照片");
+  });
+
+  // 5) 處理圖片檔案並壓縮尺寸以加速辨識
+  function handleImageFile(file) {
+    hidePhotoStatus();
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const rawDataUrl = ev.target.result;
+      resizeImageIfNeeded(rawDataUrl, file.type || "image/jpeg", (optimizedDataUrl, mime) => {
+        loadAndProcessDataUrl(optimizedDataUrl, mime, `🖼️ ${file.name || "上傳圖片"}`);
+      });
+    };
+    reader.onerror = () => {
+      showPhotoStatus("⚠️ 讀取圖片失敗，請換一張圖片再試。");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function resizeImageIfNeeded(dataUrl, mimeType, callback) {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 1400;
+      let w = img.width;
+      let h = img.height;
+      if (w <= maxDim && h <= maxDim) {
+        callback(dataUrl, mimeType);
+        return;
+      }
+      if (w > h) {
+        h = Math.round((h * maxDim) / w);
+        w = maxDim;
+      } else {
+        w = Math.round((w * maxDim) / h);
+        h = maxDim;
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      const outMime = mimeType === "image/png" ? "image/png" : "image/jpeg";
+      callback(canvas.toDataURL(outMime, 0.9), outMime);
+    };
+    img.onerror = () => callback(dataUrl, mimeType);
+    img.src = dataUrl;
+  }
+
+  function loadAndProcessDataUrl(dataUrl, mimeType, labelText) {
+    currentPhotoDataUrl = dataUrl;
+    currentPhotoMimeType = mimeType || "image/png";
+    photoPreviewImg.src = dataUrl;
+    photoMetaLabel.textContent = labelText || "🖼️ 已載入圖片預覽";
+    photoPreviewWrap.style.display = "flex";
+    runPhotoOcrAndTranslate();
+  }
+
+  // 6) 內建測試圖片產生器（點擊即可用 Canvas 產生真實外文圖片並執行 OCR 與翻譯）
+  const SAMPLE_PHOTO_CARDS = {
+    ja: {
+      lang: "ja",
+      title: "🇯🇵 日文旅館迎賓敬語圖片",
+      lines: [
+        "お早いお着きでございます。",
+        "ご予約ありがとうございます。"
+      ]
+    },
+    en: {
+      lang: "en",
+      title: "🇺🇸 英文餐廳預約確認圖片",
+      lines: [
+        "I would like to make a reservation for two.",
+        "Is there a convenience store nearby?"
+      ]
+    },
+    ko: {
+      lang: "ko",
+      title: "🇰🇷 韓文旅遊問路與訂位圖片",
+      lines: [
+        "안녕하세요. 근처에 편의점이 있나요?",
+        "두 명 저녁 식사를 예약하고 싶습니다."
+      ]
+    },
+    vi: {
+      lang: "vi",
+      title: "🇻🇳 越南文餐廳點餐圖片",
+      lines: [
+        "Xin chào, gần đây có cửa hàng tiện lợi nào không?",
+        "Tôi muốn đặt bàn ăn tối cho hai người."
+      ]
+    }
+  };
+
+  document.querySelectorAll(".photo-sample-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const type = chip.getAttribute("data-sample-type") || "ja";
+      const sample = SAMPLE_PHOTO_CARDS[type] || SAMPLE_PHOTO_CARDS.ja;
+
+      // 同步切換圖片語言選項
+      const radio = document.querySelector(`input[name="ocr-lang"][value="${sample.lang}"]`);
+      if (radio) radio.checked = true;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 820;
+      canvas.height = 280;
+      const ctx = canvas.getContext("2d");
+
+      // 白底高對比卡片，方便各種 OCR 引擎辨識
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+
+      ctx.fillStyle = "#0f172a";
+      ctx.font = 'bold 34px "Noto Sans JP", "Noto Sans KR", "Segoe UI", sans-serif';
+      sample.lines.forEach((line, idx) => {
+        ctx.fillText(line, 44, 110 + idx * 80);
+      });
+
+      const dataUrl = canvas.toDataURL("image/png");
+      loadAndProcessDataUrl(dataUrl, "image/png", sample.title);
+    });
+  });
+
+  // 7) 執行圖片 OCR 文字辨識與翻譯
+  async function runPhotoOcrAndTranslate() {
+    if (!currentPhotoDataUrl) {
+      showPhotoStatus("⚠️ 請先拍照或上傳一張圖片。");
+      return;
+    }
+
+    hidePhotoStatus();
+    photoResultSection.style.display = "none";
+    const selectedOcrLang = document.querySelector('input[name="ocr-lang"]:checked').value;
+    const selectedTargetLang = document.querySelector('input[name="ocr-target"]:checked').value;
+    currentOcrTargetLang = selectedTargetLang;
+
+    showPhotoProgress(20, "🔍 正在啟動圖片文字辨識 (OCR)...");
+
+    try {
+      let extractedText = "";
+      let detectedLang = selectedOcrLang === "auto" ? "en" : selectedOcrLang;
+      let translatedText = "";
+      let usedCloudVision = false;
+
+      // 步驟 A：優先嘗試呼叫後端 /api/ocr (Gemini 多語視覺模型)
+      try {
+        showPhotoProgress(40, "✨ 正在透過 AI 視覺引擎擷取圖片文字與翻譯...");
+        const resp = await fetch("/api/ocr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageBase64: currentPhotoDataUrl,
+            mimeType: currentPhotoMimeType,
+            langHint: selectedOcrLang,
+            targetLang: selectedTargetLang
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.ok && data.extractedText) {
+            extractedText = data.extractedText.trim();
+            detectedLang = data.detectedLang || detectSentenceLanguage(extractedText);
+            translatedText = (data.translatedText || "").trim();
+            usedCloudVision = true;
+          }
+        }
+      } catch (cloudErr) {
+        console.warn("Cloud OCR endpoint unavailable, falling back to browser Tesseract.js:", cloudErr);
+      }
+
+      // 步驟 B：若單一 HTML 離線開啟或無後端 Proxy，自動使用瀏覽器端 Tesseract.js 辨識
+      if (!usedCloudVision) {
+        showPhotoProgress(45, "📦 正在使用瀏覽器內建 OCR 引擎辨識圖片文字...");
+        extractedText = await runBrowserTesseractOcr(currentPhotoDataUrl, selectedOcrLang, (p) => {
+          const pct = 45 + Math.round(p * 35);
+          showPhotoProgress(pct, `📖 正在辨識圖片文字... ${pct}%`);
+        });
+
+        if (!extractedText || !extractedText.trim()) {
+          throw new Error("圖片中未能辨識出清晰的文字，請確認圖片清晰度或選擇對應的圖片語言後重試。");
+        }
+
+        detectedLang = selectedOcrLang === "auto" ? detectSentenceLanguage(extractedText) : selectedOcrLang;
+        showPhotoProgress(85, "🌐 正在翻譯辨識出的文字...");
+        translatedText = await translateMultilineText(extractedText, detectedLang, selectedTargetLang);
+      } else if (!translatedText && extractedText) {
+        showPhotoProgress(85, "🌐 正在翻譯辨識出的文字...");
+        translatedText = await translateMultilineText(extractedText, detectedLang, selectedTargetLang);
+      }
+
+      currentOcrDetectedLang = LANG_META[detectedLang] ? detectedLang : detectSentenceLanguage(extractedText);
+      const origMeta = LANG_META[currentOcrDetectedLang] || LANG_META.en;
+      const targetMeta = LANG_META[selectedTargetLang] || LANG_META["zh-TW"];
+
+      ocrDetectedLangLabel.textContent = `📄 圖片辨識原文 (${origMeta.name}，可修改)`;
+      ocrTargetLangLabel.textContent = `✨ 翻譯結果 (${targetMeta.name})`;
+      ocrExtractedTextarea.value = extractedText;
+      ocrTranslatedOutput.textContent = translatedText || "（無翻譯內容）";
+
+      showPhotoProgress(100, "✅ 圖片辨識與翻譯完成！");
+      setTimeout(hidePhotoProgress, 800);
+      photoResultSection.style.display = "block";
+    } catch (err) {
+      hidePhotoProgress();
+      showPhotoStatus(`⚠️ 圖片辨識失敗：${err.message}`);
+    }
+  }
+
+  async function translateMultilineText(text, sourceLang, targetLang) {
+    const lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) return "";
+    const out = [];
+    for (const line of lines) {
+      const t = await translateTextPair(line, sourceLang, targetLang);
+      out.push(t);
+    }
+    return out.join("\n");
+  }
+
+  // 動態載入 Tesseract.js 供單一 HTML 檔案獨立開啟時使用
+  async function loadTesseractScript() {
+    if (window.Tesseract) {
+      tesseractLoaded = true;
+      return window.Tesseract;
+    }
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+      script.onload = () => {
+        tesseractLoaded = true;
+        resolve(window.Tesseract);
+      };
+      script.onerror = () => reject(new Error("無法載入瀏覽器 OCR 元件，請檢查網路連線。"));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function runBrowserTesseractOcr(imageDataUrl, langMode, onProgress) {
+    const TesseractLib = await loadTesseractScript();
+    let tessLang = "eng+jpn";
+    if (langMode === "en") tessLang = "eng";
+    else if (langMode === "ja") tessLang = "jpn";
+    else if (langMode === "ko") tessLang = "kor";
+    else if (langMode === "vi") tessLang = "vie";
+
+    const result = await TesseractLib.recognize(imageDataUrl, tessLang, {
+      logger: (m) => {
+        if (m.status === "recognizing text" && typeof m.progress === "number" && onProgress) {
+          onProgress(m.progress);
+        }
+      }
+    });
+    return (result && result.data && result.data.text) ? result.data.text.trim() : "";
+  }
+
+  // 重新辨識、清除圖片、修改後重新翻譯與語音按鈕
+  btnReOcr.addEventListener("click", () => {
+    runPhotoOcrAndTranslate();
+  });
+
+  document.querySelectorAll('input[name="ocr-target"]').forEach(radio => {
+    radio.addEventListener("change", async () => {
+      const text = ocrExtractedTextarea.value.trim();
+      if (!text || photoResultSection.style.display === "none") return;
+      currentOcrTargetLang = document.querySelector('input[name="ocr-target"]:checked').value;
+      const targetMeta = LANG_META[currentOcrTargetLang] || LANG_META["zh-TW"];
+      ocrTargetLangLabel.textContent = `✨ 翻譯結果 (${targetMeta.name})`;
+      ocrTranslatedOutput.textContent = "重新翻譯中...";
+      try {
+        const retranslated = await translateMultilineText(text, currentOcrDetectedLang, currentOcrTargetLang);
+        ocrTranslatedOutput.textContent = retranslated;
+      } catch (e) {
+        ocrTranslatedOutput.textContent = "翻譯失敗，請重試。";
+      }
+    });
+  });
+
+  btnRetranslateEditedOcr.addEventListener("click", async () => {
+    const text = ocrExtractedTextarea.value.trim();
+    if (!text) return;
+    currentOcrDetectedLang = detectSentenceLanguage(text);
+    currentOcrTargetLang = document.querySelector('input[name="ocr-target"]:checked').value;
+    const origMeta = LANG_META[currentOcrDetectedLang] || LANG_META.en;
+    const targetMeta = LANG_META[currentOcrTargetLang] || LANG_META["zh-TW"];
+    ocrDetectedLangLabel.textContent = `📄 圖片辨識原文 (${origMeta.name}，可修改)`;
+    ocrTargetLangLabel.textContent = `✨ 翻譯結果 (${targetMeta.name})`;
+    ocrTranslatedOutput.textContent = "正在重新翻譯...";
+    try {
+      const retranslated = await translateMultilineText(text, currentOcrDetectedLang, currentOcrTargetLang);
+      ocrTranslatedOutput.textContent = retranslated;
+    } catch (err) {
+      showPhotoStatus(`⚠️ 重新翻譯失敗：${err.message}`);
+    }
+  });
+
+  btnClearPhoto.addEventListener("click", () => {
+    currentPhotoDataUrl = "";
+    photoPreviewImg.src = "";
+    photoPreviewWrap.style.display = "none";
+    photoResultSection.style.display = "none";
+    ocrExtractedTextarea.value = "";
+    ocrTranslatedOutput.textContent = "";
+    hidePhotoStatus();
+    hidePhotoProgress();
+  });
+
+  btnOcrSpeakOrig.addEventListener("click", () => {
+    const text = ocrExtractedTextarea.value.trim();
+    if (text) speakText(text, currentOcrDetectedLang, 1.0);
+  });
+
+  btnOcrSpeakOrigSlow.addEventListener("click", () => {
+    const text = ocrExtractedTextarea.value.trim();
+    if (text) speakText(text, currentOcrDetectedLang, 0.65);
+  });
+
+  btnOcrSpeakTrans.addEventListener("click", () => {
+    const text = ocrTranslatedOutput.textContent.trim();
+    if (text) speakText(text, currentOcrTargetLang, 1.0);
+  });
+
+  btnOcrSpeakTransSlow.addEventListener("click", () => {
+    const text = ocrTranslatedOutput.textContent.trim();
+    if (text) speakText(text, currentOcrTargetLang, 0.65);
+  });
+
+  btnOcrCopyTrans.addEventListener("click", async () => {
+    const text = ocrTranslatedOutput.textContent.trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      btnOcrCopyTrans.textContent = "✅ 已複製";
+      setTimeout(() => { btnOcrCopyTrans.textContent = "📋 複製"; }, 1500);
+    } catch (e) {
+      showPhotoStatus("請手動選取翻譯結果文字複製。", "info");
+    }
+  });
+
+  // 一鍵送入「📖 學習模式」做沉浸式句子與語塊拆解
+  btnSendOcrToLearn.addEventListener("click", () => {
+    const extracted = ocrExtractedTextarea.value.trim();
+    if (!extracted) {
+      showPhotoStatus("⚠️ 目前沒有可送入學習模式的圖片文字。");
+      return;
+    }
+    inputText.value = extracted;
+    const autoRadio = document.querySelector('input[name="lang"][value="auto"]');
+    if (autoRadio) autoRadio.checked = true;
+    switchActiveMode("learn");
+    btnAnalyze.click();
+  });
+
+  // ============================================================================
+  // 8. 四國語言智慧語塊拆解邏輯 (英 en / 日 ja / 韓 ko / 越 vi)
+  // ============================================================================
+  async function generateChunks(sentence, lang, fullSentenceTranslation) {
+    if (lang === "en") {
+      return await analyzeEnglishChunks(sentence);
+    } else if (lang === "ja") {
+      return await analyzeJapaneseChunksWithContext(sentence, fullSentenceTranslation);
+    } else if (lang === "ko") {
+      return await analyzeKoreanChunks(sentence);
+    } else if (lang === "vi") {
+      return await analyzeVietnameseChunks(sentence);
+    }
+    return [];
+  }
+
+  // -------------------- 英文語塊拆解 --------------------
+  async function analyzeEnglishChunks(sentence) {
+    const rawEnChunks = chunkEnglishSentence(sentence);
+    const enResults = [];
+
+    for (const chunkText of rawEnChunks) {
+      const cleanChunk = chunkText.trim();
+      if (!cleanChunk || /^[.,!?;:]+$/.test(cleanChunk)) continue;
+
+      const lower = cleanChunk.toLowerCase();
+      if (ENGLISH_LEXICON[lower]) {
+        enResults.push({ text: cleanChunk, meaning: ENGLISH_LEXICON[lower] });
+      } else {
+        try {
+          const meaning = await translateTextPair(cleanChunk, "en", "zh-TW");
+          enResults.push({ text: cleanChunk, meaning });
+        } catch (e) {
+          enResults.push({ text: cleanChunk, meaning: "點擊朗讀發音" });
+        }
+      }
+    }
+    return enResults;
+  }
+
+  function chunkEnglishSentence(sentence) {
+    const text = sentence.trim().replace(/[.!?]+$/, "");
+    const result = [];
+    const lowerText = text.toLowerCase();
+
+    let index = 0;
+    while (index < text.length) {
+      while (index < text.length && /[\s.,!?;:]/.test(text[index])) index++;
+      if (index >= text.length) break;
+
+      let matchedPhrase = null;
+      let matchedLen = 0;
+
+      for (const idiom of ENGLISH_IDIOMS) {
+        if (lowerText.substring(index).startsWith(idiom)) {
+          const nextChar = lowerText[index + idiom.length];
+          if (!nextChar || /[\s.,!?;:]/.test(nextChar)) {
+            if (idiom.length > matchedLen) {
+              matchedPhrase = text.substring(index, index + idiom.length);
+              matchedLen = idiom.length;
+            }
+          }
+        }
+      }
+
+      if (matchedPhrase) {
+        result.push(matchedPhrase);
+        index += matchedLen;
+      } else {
+        let nextSpace = text.indexOf(" ", index);
+        if (nextSpace === -1) nextSpace = text.length;
+        const word = text.substring(index, nextSpace).replace(/^[.,!?;:]+|[.,!?;:]+$/g, "");
+        if (word) result.push(word);
+        index = nextSpace + 1;
+      }
+    }
+
+    return result.length > 0 ? result : text.split(/\s+/);
+  }
+
+  // -------------------- 日文語塊拆解 --------------------
+  async function analyzeJapaneseChunksWithContext(sentence, fullSentenceTranslation) {
+    const cleanSentence = sentence.trim().replace(/[。！？!?]+$/, "");
+    if (!cleanSentence) return [];
+
+    const rawPhrases = chunkJapaneseSentence(cleanSentence);
+
+    if (rawPhrases.length === 1 && rawPhrases[0] === cleanSentence) {
+      return [{
+        text: cleanSentence,
+        meaning: (fullSentenceTranslation || "").replace(/[。！？]+$/, "")
+      }];
+    }
+
+    const finalChunks = [];
+    for (const phrase of rawPhrases) {
+      const p = phrase.trim();
+      if (!p || /^[、。！？「」『』（）\s]+$/.test(p)) continue;
+
+      const meaning = await resolveJapaneseChunkMeaning(p, cleanSentence, fullSentenceTranslation);
+      finalChunks.push({ text: p, meaning });
+    }
+    return finalChunks;
+  }
+
+  function chunkJapaneseSentence(sentence) {
+    const clean = sentence.trim().replace(/[。！？!?]+$/, "");
+    const clauses = clean.split(/[、，]+/).map(c => c.trim()).filter(Boolean);
+    const allChunks = [];
+
+    for (const clause of clauses) {
+      let pos = 0;
+      while (pos < clause.length) {
+        const rest = clause.substring(pos);
+
+        let matchedFixed = null;
+        for (const item of JAPANESE_FIXED_CHUNKS) {
+          if (item.pattern !== "お早いお着きでございます" && rest.startsWith(item.pattern)) {
+            if (!matchedFixed || item.pattern.length > matchedFixed.length) {
+              matchedFixed = item.pattern;
+            }
+          }
+        }
+        if (matchedFixed) {
+          allChunks.push(matchedFixed);
+          pos += matchedFixed.length;
+          continue;
+        }
+
+        let endIdx = findNextJapaneseBunsetsuBoundary(rest);
+        let chunkCandidate = rest.substring(0, endIdx);
+
+        allChunks.push(chunkCandidate);
+        pos += chunkCandidate.length;
+      }
+    }
+
+    const merged = [];
+    for (const ch of allChunks) {
+      if (merged.length > 0 && (ch.length === 1 || /^(です|ます|ました|でした|か|ね|よ)$/.test(ch))) {
+        merged[merged.length - 1] += ch;
+      } else {
+        merged.push(ch);
+      }
+    }
+
+    return merged.length > 0 ? merged : [clean];
+  }
+
+  function findNextJapaneseBunsetsuBoundary(text) {
+    const keigoSplit = text.match(/^(.+?)(でございます|でいらっしゃいます|です|でした|ました|ません)$/);
+    if (keigoSplit && keigoSplit[1].length >= 2 && keigoSplit[1].length <= 10) {
+      if (!/[はがをにへでとからまで]/.test(keigoSplit[1])) {
+        return keigoSplit[1].length;
+      }
+    }
+
+    for (let i = 1; i < text.length; i++) {
+      const prevChar = text[i - 1];
+      const currChar = text[i];
+      const afterStr = text.substring(i + 1);
+
+      const prevIsKanjiOrKataOrNum = /[\u4E00-\u9FFF\u30A0-\u30FF0-9０-９]/.test(prevChar);
+
+      const twoChar = text.substring(i, i + 2);
+      if (prevIsKanjiOrKataOrNum && (twoChar === "から" || twoChar === "まで")) {
+        return i + 2;
+      }
+
+      if (prevIsKanjiOrKataOrNum && /^[はがをにへでとも]$/.test(currChar)) {
+        if (currChar === "で" && /^(ございます|いらっしゃいます|す|した|しょう)/.test(afterStr)) {
+          continue;
+        }
+        if (/^[はも]/.test(afterStr)) {
+          return i + 2;
+        }
+        return i + 1;
+      }
+    }
+
+    return text.length;
+  }
+
+  async function resolveJapaneseChunkMeaning(chunk, fullSentence, fullSentenceTranslation) {
+    for (const item of JAPANESE_FIXED_CHUNKS) {
+      if (chunk === item.pattern) return item.meaning;
+    }
+    if (JAPANESE_GRAMMAR_MEANINGS[chunk]) {
+      return JAPANESE_GRAMMAR_MEANINGS[chunk];
+    }
+
+    const particleSuffixMatch = chunk.match(/^(.+?)(へは|には|では|から|まで|[はがをにへでとも])$/);
+    if (particleSuffixMatch && particleSuffixMatch[1].length >= 1) {
+      const stem = particleSuffixMatch[1];
+      const particle = particleSuffixMatch[2];
+
+      for (const item of JAPANESE_FIXED_CHUNKS) {
+        if (stem === item.pattern) {
+          return formatJapaneseStemWithParticle(item.meaning, particle);
+        }
+      }
+
+      try {
+        const stemMeaning = await translateTextPair(stem, "ja", "zh-TW");
+        return formatJapaneseStemWithParticle(stemMeaning, particle);
+      } catch (e) {
+        return "點擊朗讀發音";
+      }
+    }
+
+    try {
+      return await translateTextPair(chunk, "ja", "zh-TW");
+    } catch (e) {
+      return (fullSentenceTranslation || "點擊朗讀發音");
+    }
+  }
+
+  function formatJapaneseStemWithParticle(stemMeaning, particle) {
+    const cleanStem = (stemMeaning || "").replace(/[。！？.!?]+$/, "");
+    switch (particle) {
+      case "を": return `${cleanStem}（受詞）`;
+      case "へ":
+      case "へは": return `往${cleanStem}`;
+      case "に":
+      case "には": return `在／往${cleanStem}`;
+      case "で":
+      case "では": return `在／用${cleanStem}`;
+      case "と": return `和${cleanStem}`;
+      case "から": return `從${cleanStem}`;
+      case "まで": return `到${cleanStem}`;
+      case "も": return `${cleanStem}也`;
+      default: return cleanStem;
+    }
+  }
+
+  // -------------------- 韓語語塊拆解 (Korean Chunking) --------------------
+  async function analyzeKoreanChunks(sentence) {
+    const text = sentence.trim().replace(/[.!?。！？]+$/, "");
+    const rawChunks = [];
+    let idx = 0;
+
+    while (idx < text.length) {
+      while (idx < text.length && /[\s,，]/.test(text[idx])) idx++;
+      if (idx >= text.length) break;
+
+      const rest = text.substring(idx);
+      let matchedKnown = null;
+
+      for (const item of KOREAN_PHRASES_DB) {
+        if (rest.startsWith(item.phrase)) {
+          const nextChar = rest[item.phrase.length];
+          if (!nextChar || /[\s.,!?]/.test(nextChar)) {
+            if (!matchedKnown || item.phrase.length > matchedKnown.phrase.length) {
+              matchedKnown = item;
+            }
+          }
+        }
+      }
+
+      if (matchedKnown) {
+        rawChunks.push({ text: matchedKnown.phrase, meaning: matchedKnown.meaning });
+        idx += matchedKnown.phrase.length;
+      } else {
+        let nextSpace = text.indexOf(" ", idx);
+        if (nextSpace === -1) nextSpace = text.length;
+        const eojeol = text.substring(idx, nextSpace).replace(/^[.,!?]+|[.,!?]+$/g, "");
+        if (eojeol) {
+          rawChunks.push({ text: eojeol, meaning: null });
+        }
+        idx = nextSpace + 1;
+      }
+    }
+
+    for (const item of rawChunks) {
+      if (!item.meaning) {
+        try {
+          item.meaning = await translateTextPair(item.text, "ko", "zh-TW");
+        } catch (e) {
+          item.meaning = "點擊朗讀發音";
+        }
+      }
+    }
+    return rawChunks;
+  }
+
+  // -------------------- 越南語語塊拆解 (Vietnamese Compound-Aware Chunking) --------------------
+  async function analyzeVietnameseChunks(sentence) {
+    const text = sentence.trim().replace(/[.!?。！？]+$/, "");
+    const lowerText = text.toLowerCase();
+    const rawChunks = [];
+    let idx = 0;
+
+    while (idx < text.length) {
+      while (idx < text.length && /[\s,，;:]/.test(text[idx])) idx++;
+      if (idx >= text.length) break;
+
+      const restLower = lowerText.substring(idx);
+      let matchedCompound = null;
+
+      for (const item of VIETNAMESE_PHRASES_DB) {
+        if (restLower.startsWith(item.phrase)) {
+          const nextChar = restLower[item.phrase.length];
+          if (!nextChar || /[\s.,!?;:]/.test(nextChar)) {
+            if (!matchedCompound || item.phrase.length > matchedCompound.phrase.length) {
+              matchedCompound = {
+                text: text.substring(idx, idx + item.phrase.length),
+                meaning: item.meaning,
+                pron: item.pron || "",
+                len: item.phrase.length
+              };
+            }
+          }
+        }
+      }
+
+      if (matchedCompound) {
+        rawChunks.push({
+          text: matchedCompound.text,
+          meaning: matchedCompound.meaning,
+          pron: matchedCompound.pron || ""
+        });
+        idx += matchedCompound.len;
+      } else {
+        let nextSpace = text.indexOf(" ", idx);
+        if (nextSpace === -1) nextSpace = text.length;
+        const word = text.substring(idx, nextSpace).replace(/^[.,!?;:]+|[.,!?;:]+$/g, "");
+        if (word) {
+          const lowerW = word.toLowerCase();
+          rawChunks.push({
+            text: word,
+            meaning: null,
+            pron: VIETNAMESE_SINGLE_PRON[lowerW] || ""
+          });
+        }
+        idx = nextSpace + 1;
+      }
+    }
+
+    for (const item of rawChunks) {
+      if (!item.meaning) {
+        try {
+          item.meaning = await translateTextPair(item.text, "vi", "zh-TW");
+        } catch (e) {
+          item.meaning = "點擊朗讀發音";
+        }
+      }
+    }
+    return rawChunks;
+  }
+
+  // ============================================================================
+  // 9. 學習模式（直覺式語言切換按鈕 ＋ 支援繁體中文與英/日/韓/越雙向拆解）
+  // ============================================================================
+  let selectedLearnSourceLang = "auto"; // 'auto' | 'zh-TW' | 'en' | 'ja' | 'ko' | 'vi'
+  let selectedLearnTargetLang = "auto-zh"; // 'auto-zh' | 'en' | 'ja' | 'ko' | 'vi'
+
+  const learnPairSummaryBadge = document.getElementById("learn-pair-summary-badge");
+  const learnSourceBtns = document.querySelectorAll("#learn-source-btn-group .lang-pill-btn");
+  const learnTargetBtns = document.querySelectorAll("#learn-target-btn-group .lang-pill-btn");
+
+  function updateLearnPairSummaryUI() {
+    const srcNames = {
+      "auto": "✨ 自動偵測原文（中／英／日／韓／越）",
+      "zh-TW": "🇹🇼 繁體中文",
+      "en": "🇺🇸 英文",
+      "ja": "🇯🇵 日文",
+      "ko": "🇰🇷 韓語",
+      "vi": "🇻🇳 越南語"
+    };
+    const tgtNames = {
+      "auto-zh": "🇹🇼 繁體中文（若貼中文則自動翻成 🇺🇸 英文拆解）",
+      "en": "🇺🇸 英文（含英文語塊拆解與發音）",
+      "ja": "🇯🇵 日文（含日文語塊拆解與發音）",
+      "ko": "🇰🇷 韓語（含韓語語塊拆解與發音）",
+      "vi": "🇻🇳 越南語（含越語語塊拆解與發音）"
+    };
+    if (learnPairSummaryBadge) {
+      learnPairSummaryBadge.textContent = `🧭 目前設定：${srcNames[selectedLearnSourceLang] || "自動偵測"} ➔ ${tgtNames[selectedLearnTargetLang] || "繁體中文"}`;
+    }
+  }
+
+  function setLearnSourceLang(langCode) {
+    selectedLearnSourceLang = langCode;
+    learnSourceBtns.forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-src-lang") === langCode);
+    });
+    const hiddenRadio = document.querySelector(`input[name="lang"][value="${langCode}"]`);
+    if (hiddenRadio) hiddenRadio.checked = true;
+
+    // 若使用者主動點選「🇹🇼 繁體中文」作為原文，且目標仍停留在「翻成繁體中文」，自動貼心切換目標為「🇺🇸 翻成英文學習」
+    if (langCode === "zh-TW" && selectedLearnTargetLang === "auto-zh") {
+      setLearnTargetLang("en");
+      return;
+    }
+    updateLearnPairSummaryUI();
+  }
+
+  function setLearnTargetLang(targetCode) {
+    selectedLearnTargetLang = targetCode;
+    learnTargetBtns.forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-tgt-lang") === targetCode);
+    });
+    updateLearnPairSummaryUI();
+  }
+
+  learnSourceBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const code = btn.getAttribute("data-src-lang") || "auto";
+      setLearnSourceLang(code);
+    });
+  });
+
+  learnTargetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const code = btn.getAttribute("data-tgt-lang") || "auto-zh";
+      setLearnTargetLang(code);
+      if (inputText.value.trim()) {
+        btnAnalyze.click();
+      }
+    });
+  });
+
+  function updateInputCharCount() {
+    if (inputCharCounter) {
+      inputCharCounter.textContent = String(inputText.value.length);
+    }
+  }
+
+  inputText.addEventListener("input", updateInputCharCount);
+
+  const DEMO_MULTILINGUAL_TEXT = `お早いお着きでございます。
+
+I would like to make a reservation for two.
+
+두 명 저녁 식사를 예약하고 싶습니다.
+
+Tôi muốn đặt bàn ăn tối cho hai người.`;
+
+  function loadDemoMultilingualSentences() {
+    inputText.value = DEMO_MULTILINGUAL_TEXT;
+    updateInputCharCount();
+    setLearnSourceLang("auto");
+    setLearnTargetLang("auto-zh");
+    btnAnalyze.click();
+  }
+
+  if (btnLoadDemoBanner) {
+    btnLoadDemoBanner.addEventListener("click", loadDemoMultilingualSentences);
+  }
+
+  if (btnPasteClipboard) {
+    btnPasteClipboard.addEventListener("click", async () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const clipText = await navigator.clipboard.readText();
+          if (clipText && clipText.trim()) {
+            inputText.value = clipText.trim();
+            updateInputCharCount();
+            inputText.focus();
+            showStatus("✅ 已成功貼上剪貼簿文字！點擊下方「🔍 開始沉浸式拆解分析」即可學習", "info");
+            return;
+          }
+        }
+        showStatus("💡 您的瀏覽器不允許自動讀取剪貼簿，請點擊文字框按 Ctrl+V（或手機長按貼上）即可！", "info");
+        inputText.focus();
+      } catch (err) {
+        showStatus("💡 請直接在輸入框按 Ctrl+V（或手機長按貼上）貼入文字。", "info");
+        inputText.focus();
+      }
+    });
+  }
+
+  if (btnClearInputInline) {
+    btnClearInputInline.addEventListener("click", () => {
+      btnClear.click();
+    });
+  }
+
+  btnClear.addEventListener("click", () => {
+    inputText.value = "";
+    updateInputCharCount();
+    showLearnWelcomeGuide();
+    hideStatus();
+    hideProgress();
+  });
+
+  function showLearnWelcomeGuide() {
+    outputCard.style.display = "block";
+    analysisResults.innerHTML = `
+      <div class="learn-welcome-guide">
+        <div style="font-size:2.2rem; margin-bottom:8px;">💡</div>
+        <div style="font-size:1.15rem; font-weight:800; color:var(--text-main); margin-bottom:6px;">
+          遇到不會的字詞／句子？請在上方文字框輸入或貼上！
+        </div>
+        <div style="font-size:0.92rem; color:var(--text-muted); max-width:540px; margin:0 auto 16px auto; line-height:1.6;">
+          操作方式超簡單：<strong>① 點擊上方輸入框打字或按「📋 一鍵貼上」 ➔ ② 點擊「開始沉浸式拆解分析」➔ ③ 立即看意思、聽發音與拆解！</strong>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-load-demo-guide" style="display:inline-flex; align-items:center; gap:6px; margin:0 auto;">
+          🧪 點此一鍵載入 4 國示範例句體驗效果
+        </button>
+      </div>
+    `;
+    const btnGuide = document.getElementById("btn-load-demo-guide");
+    if (btnGuide) {
+      btnGuide.addEventListener("click", loadDemoMultilingualSentences);
+    }
+  }
+
+  btnAnalyze.addEventListener("click", async () => {
+    const rawText = inputText.value.trim();
+    if (!rawText) {
+      showStatus("⚠️ 請先在上方文字框輸入或貼上文字（或點擊「🧪 一鍵載入 4 國示範例句」體驗）。", "error");
+      showLearnWelcomeGuide();
+      return;
+    }
+
+    hideStatus();
+    showProgress();
+    outputCard.style.display = "none";
+    btnAnalyze.disabled = true;
+
+    try {
+      const paragraphs = rawText.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
+
+      analysisResults.innerHTML = "";
+      let totalSentences = 0;
+      let processedSentences = 0;
+
+      const parsedParagraphs = paragraphs.map(pText => {
+        const sentences = splitIntoSentences(pText);
+        totalSentences += sentences.length;
+        return { pText, sentences };
+      });
+
+      if (totalSentences === 0) {
+        throw new Error("未能解析出有效句子。");
+      }
+
+      for (let pIdx = 0; pIdx < parsedParagraphs.length; pIdx++) {
+        const { sentences } = parsedParagraphs[pIdx];
+        const pBlockData = { paragraphIndex: pIdx + 1, sentences: [] };
+
+        for (let sIdx = 0; sIdx < sentences.length; sIdx++) {
+          const originalSentence = sentences[sIdx];
+
+          let detectedLang = selectedLearnSourceLang;
+          if (detectedLang === "auto") {
+            detectedLang = detectSentenceLanguage(originalSentence);
+          }
+
+          // 情境 1：若貼上的是「繁體中文 (zh-TW)」，自動翻譯為目標外語（預設英文 en，或使用者選定的日/韓/越），並針對該外語進行語塊拆解與發音！
+          if (detectedLang === "zh-TW") {
+            const targetForeignLang = (selectedLearnTargetLang === "auto-zh") ? "en" : selectedLearnTargetLang;
+            const foreignSentence = await translateTextPair(originalSentence, "zh-TW", targetForeignLang);
+            const chunks = await generateChunks(foreignSentence, targetForeignLang, originalSentence);
+
+            pBlockData.sentences.push({
+              original: foreignSentence,
+              translation: `🇹🇼 中文原句：${originalSentence}`,
+              chunks: chunks,
+              lang: targetForeignLang,
+              zhSource: originalSentence
+            });
+          } else {
+            // 情境 2：貼上的是外語（英/日/韓/越）
+            const zhTranslation = await translateTextPair(originalSentence, detectedLang, "zh-TW");
+            let displayTranslation = `🇹🇼 ${zhTranslation}`;
+
+            // 若使用者另外指定了其他目標外語（例如貼英文想同時看日文翻譯）
+            if (selectedLearnTargetLang !== "auto-zh" && selectedLearnTargetLang !== detectedLang) {
+              const extraTargetTrans = await translateTextPair(originalSentence, detectedLang, selectedLearnTargetLang);
+              const tgtFlag = LANG_META[selectedLearnTargetLang] ? LANG_META[selectedLearnTargetLang].name.split(" ")[0] : "";
+              displayTranslation = `${tgtFlag} ${extraTargetTrans} （🇹🇼 ${zhTranslation}）`;
+            }
+
+            const chunks = await generateChunks(originalSentence, detectedLang, zhTranslation);
+
+            pBlockData.sentences.push({
+              original: originalSentence,
+              translation: displayTranslation,
+              chunks: chunks,
+              lang: detectedLang
+            });
+          }
+
+          processedSentences++;
+          const percent = Math.round((processedSentences / totalSentences) * 100);
+          updateProgress(percent, `正在翻譯與拆解分析中... (${processedSentences}/${totalSentences} 句) ${percent}%`);
+
+          await sleep(80);
+        }
+
+        renderParagraph(pBlockData);
+      }
+
+      outputCard.style.display = "block";
+      updateProgress(100, "✅ 拆解分析完成！");
+      setTimeout(hideProgress, 1000);
+    } catch (err) {
+      console.error(err);
+      showStatus(`⚠️ 翻譯服務目前無法正常運作：${err.message}`);
+      hideProgress();
+    } finally {
+      btnAnalyze.disabled = false;
+    }
+  });
+
+  function splitIntoSentences(text) {
+    const lang = detectSentenceLanguage(text);
+    if (lang === "ja" || lang === "zh-TW") {
+      return text.split(/(?<=[。！？!?；;\n])/).map(s => s.trim()).filter(s => s.length > 0);
+    } else {
+      return text.match(/[^.!?。！？]+[.!?。！？]+["'’]?|[^.!?。！？]+$/g)?.map(s => s.trim()).filter(s => s.length > 0) || [text];
+    }
+  }
+
+  function renderParagraph(pData) {
+    const pBlock = document.createElement("div");
+    pBlock.className = "paragraph-block";
+
+    const title = document.createElement("div");
+    title.className = "paragraph-title";
+    title.textContent = `第 ${pData.paragraphIndex} 段`;
+    pBlock.appendChild(title);
+
+    pData.sentences.forEach(s => {
+      const card = document.createElement("div");
+      card.className = "sentence-card";
+
+      const header = document.createElement("div");
+      header.className = "sentence-header";
+
+      const orig = document.createElement("div");
+      orig.className = "original-text";
+      const langBadge = LANG_META[s.lang] ? LANG_META[s.lang].name.split(" ")[0] + " " : "";
+      orig.textContent = langBadge + s.original;
+
+      const ttsControls = document.createElement("div");
+      ttsControls.className = "tts-controls";
+
+      const btnNormal = document.createElement("button");
+      btnNormal.type = "button";
+      btnNormal.className = "tts-btn";
+      btnNormal.innerHTML = "🔊 朗讀";
+      btnNormal.onclick = () => speakText(s.original, s.lang, 1.0);
+
+      const btnSlow = document.createElement("button");
+      btnSlow.type = "button";
+      btnSlow.className = "tts-btn";
+      btnSlow.innerHTML = "🐢 慢速";
+      btnSlow.onclick = () => speakText(s.original, s.lang, 0.65);
+
+      ttsControls.appendChild(btnNormal);
+      ttsControls.appendChild(btnSlow);
+
+      header.appendChild(orig);
+      header.appendChild(ttsControls);
+
+      const trans = document.createElement("div");
+      trans.className = "translated-text";
+      trans.textContent = s.translation;
+
+      const chunksTitle = document.createElement("div");
+      chunksTitle.className = "chunks-title";
+      chunksTitle.textContent = "語塊拆解（點擊語塊可單獨聽發音）：";
+
+      const chunksWrapper = document.createElement("div");
+      chunksWrapper.className = "chunks-wrapper";
+
+      s.chunks.forEach(c => {
+        const tag = document.createElement("button");
+        tag.type = "button";
+        tag.className = "chunk-tag";
+
+        const cOrig = document.createElement("span");
+        cOrig.className = "chunk-orig";
+        cOrig.textContent = c.text;
+        tag.appendChild(cOrig);
+
+        if (c.pron) {
+          const cPron = document.createElement("span");
+          cPron.className = "chunk-pron";
+          cPron.textContent = c.pron;
+          tag.appendChild(cPron);
+        }
+
+        const cTrans = document.createElement("span");
+        cTrans.className = "chunk-trans";
+        cTrans.textContent = c.meaning;
+        tag.appendChild(cTrans);
+
+        tag.onclick = () => speakText(c.text, s.lang, 0.9);
+
+        chunksWrapper.appendChild(tag);
+      });
+
+      card.appendChild(header);
+      card.appendChild(trans);
+      card.appendChild(chunksTitle);
+      card.appendChild(chunksWrapper);
+      pBlock.appendChild(card);
+    });
+
+    analysisResults.appendChild(pBlock);
+  }
+
+  // ============================================================================
+  // 10. 真人級標準多語發音引擎 (Cloud Neural TTS + 嚴格母語語音篩選)
+  //     徹底解決 Windows / Mac / 手機瀏覽器未安裝越語語音包導致用英文腔亂唸越語的問題
+  // ============================================================================
+  const CLOUD_TTS_FALLBACK_ORIGIN = "https://ais-pre-skm3d7n2lrh7f3vam43pyh-619141643420.asia-northeast1.run.app";
+  const ttsEngineSelect = document.getElementById("tts-engine-mode");
+  const ttsActiveStatus = document.getElementById("tts-active-status");
+  const btnTestViVoice = document.getElementById("btn-test-vi-voice");
+  let activeAudioElements = [];
+  let currentSpeechSessionId = 0;
+
+  if (ttsEngineSelect) {
+    ttsEngineSelect.addEventListener("change", () => {
+      stopCurrentSpeech();
+      if (ttsEngineSelect.value === "neural") {
+        ttsActiveStatus.textContent = "✅ 已啟用雲端標準單一母語發音（越／韓／日／英真人級音質）";
+      } else {
+        const viVoice = selectBestVoice("vi-VN");
+        if (viVoice) {
+          ttsActiveStatus.textContent = `💻 使用系統單一語音：${viVoice.name}`;
+        } else {
+          ttsActiveStatus.textContent = "⚠️ 您的系統未安裝越語語音包，朗讀越語時將自動切換為雲端標準發音";
+        }
+      }
+    });
+  }
+
+  if (btnTestViVoice) {
+    btnTestViVoice.addEventListener("click", () => {
+      speakText("Xin chào! Tôi muốn đặt bàn ăn tối cho hai người. Cảm ơn bạn!", "vi", 1.0);
+    });
+  }
+
+  function cleanupSingleAudio(audio) {
+    if (!audio) return;
+    try {
+      audio.onended = null;
+      audio.onerror = null;
+      audio.onloadedmetadata = null;
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+    } catch (e) {}
+  }
+
+  function stopAllAudioElements() {
+    while (activeAudioElements.length > 0) {
+      const a = activeAudioElements.pop();
+      cleanupSingleAudio(a);
+    }
+  }
+
+  function stopCurrentSpeech() {
+    currentSpeechSessionId++;
+    stopAllAudioElements();
+    if ("speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (e) {}
+    }
+  }
+
+  function selectBestVoice(targetLangCode) {
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (voices.length === 0) return null;
+
+    const normalizedTarget = targetLangCode.toLowerCase();
+    const langPrefix = normalizedTarget.split("-")[0];
+
+    // 篩選出真正屬於該語系的語音（絕不允許用英文或中文語音去唸越南語）
+    const langVoices = voices.filter(v => {
+      if (!v.lang) return false;
+      const vLang = v.lang.replace("_", "-").toLowerCase();
+      return vLang === normalizedTarget || vLang.startsWith(langPrefix + "-") || vLang === langPrefix;
+    });
+
+    if (langVoices.length === 0) return null;
+
+    // 優先排序：Natural / Online Neural > Google 母語 > 系統預設
+    langVoices.sort((a, b) => {
+      const score = (v) => {
+        const n = (v.name || "").toLowerCase();
+        let s = 0;
+        if (n.includes("natural") || n.includes("neural")) s += 50;
+        if (n.includes("online")) s += 30;
+        if (n.includes("hoaimy") || n.includes("namminh") || n.includes("linh") || n.includes("google")) s += 25;
+        if (v.lang.replace("_", "-").toLowerCase() === normalizedTarget) s += 10;
+        return s;
+      };
+      return score(b) - score(a);
+    });
+
+    return langVoices[0];
+  }
+
+  // 將長句切成不超過 160 字元的自然語音片段，確保雲端 TTS 完整朗讀
+  function splitTextForTtsChunks(text) {
+    const clean = (text || "").trim();
+    if (!clean) return [];
+    if (clean.length <= 160) return [clean];
+
+    const parts = clean.split(/(?<=[.!?。！？；;\n])\s*/).map(s => s.trim()).filter(Boolean);
+    const chunks = [];
+    let buf = "";
+    for (const p of parts) {
+      if ((buf + " " + p).trim().length <= 160) {
+        buf = (buf ? buf + " " : "") + p;
+      } else {
+        if (buf) chunks.push(buf);
+        if (p.length <= 160) {
+          buf = p;
+        } else {
+          for (let i = 0; i < p.length; i += 150) {
+            chunks.push(p.slice(i, i + 150));
+          }
+          buf = "";
+        }
+      }
+    }
+    if (buf) chunks.push(buf);
+    return chunks;
+  }
+
+  // 嚴格單一音軌播放：確保同一時間只有「唯一一個」音訊來源發聲，絕不重疊兩個聲音
+  function playSingleNeuralAudioChunk(chunkText, lang, isSlow, playbackRate, sessionId) {
+    return new Promise((resolve, reject) => {
+      if (sessionId !== currentSpeechSessionId) {
+        resolve();
+        return;
+      }
+
+      const tlMap = { vi: "vi", ko: "ko", ja: "ja", en: "en", "zh-TW": "zh-TW" };
+      const tl = tlMap[lang] || lang || "vi";
+      const slowFlag = isSlow ? "1" : "0";
+      const gtxSpeed = isSlow ? "0.24" : "1";
+
+      const candidateUrls = [];
+      if (location.protocol === "http:" || location.protocol === "https:") {
+        candidateUrls.push(`/api/tts?lang=${encodeURIComponent(tl)}&slow=${slowFlag}&text=${encodeURIComponent(chunkText)}`);
+      }
+      candidateUrls.push(`https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=${encodeURIComponent(tl)}&ttsspeed=${gtxSpeed}&q=${encodeURIComponent(chunkText)}`);
+      candidateUrls.push(`${CLOUD_TTS_FALLBACK_ORIGIN}/api/tts?lang=${encodeURIComponent(tl)}&slow=${slowFlag}&text=${encodeURIComponent(chunkText)}`);
+
+      let urlIdx = 0;
+      let chunkSettled = false;
+
+      function tryNextUrl() {
+        if (chunkSettled) return;
+        if (sessionId !== currentSpeechSessionId) {
+          chunkSettled = true;
+          resolve();
+          return;
+        }
+        if (urlIdx >= candidateUrls.length) {
+          chunkSettled = true;
+          reject(new Error("All neural TTS endpoints failed"));
+          return;
+        }
+
+        // 先徹底清除前一個嘗試的 audio，確保不會有兩個 audio 同時播放
+        stopAllAudioElements();
+
+        const currentUrl = candidateUrls[urlIdx++];
+        const audio = document.createElement("audio");
+        audio.referrerPolicy = "no-referrer";
+        audio.preload = "auto";
+        audio.src = currentUrl;
+        activeAudioElements.push(audio);
+
+        // 防止 onerror 與 play().catch() 重複觸發兩次 tryNextUrl()
+        let thisAttemptFailed = false;
+        function handleAttemptFailure() {
+          if (thisAttemptFailed || chunkSettled) return;
+          thisAttemptFailed = true;
+          cleanupSingleAudio(audio);
+          tryNextUrl();
+        }
+
+        audio.onloadedmetadata = () => {
+          if (thisAttemptFailed || chunkSettled) return;
+          try {
+            audio.playbackRate = isSlow ? 0.92 : playbackRate;
+          } catch (e) {}
+        };
+
+        audio.onended = () => {
+          if (thisAttemptFailed || chunkSettled) return;
+          chunkSettled = true;
+          cleanupSingleAudio(audio);
+          resolve();
+        };
+
+        audio.onerror = () => {
+          handleAttemptFailure();
+        };
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            handleAttemptFailure();
+          });
+        }
+      }
+
+      tryNextUrl();
+    });
+  }
+
+  async function speakText(text, lang, rate = 1.0) {
+    const clean = (text || "").trim();
+    if (!clean) return;
+
+    // 播放前先強制停止所有正在播放的雲端音訊與系統語音，確保永遠只有單一聲音
+    stopCurrentSpeech();
+    const mySessionId = currentSpeechSessionId;
+
+    const meta = LANG_META[lang] || LANG_META.en;
+    const preferNeural = !ttsEngineSelect || ttsEngineSelect.value === "neural";
+    const matchedLocalVoice = selectBestVoice(meta.ttsCode);
+    const isSlow = rate < 0.8;
+
+    // 模式 A：雲端真人標準母語發音（單一高品質音軌，絕不混入系統內建語音）
+    if (preferNeural || !matchedLocalVoice) {
+      try {
+        const chunks = splitTextForTtsChunks(clean);
+        for (const chunk of chunks) {
+          if (mySessionId !== currentSpeechSessionId) return;
+          await playSingleNeuralAudioChunk(chunk, lang, isSlow, rate, mySessionId);
+        }
+        return; // 成功播放完畢後直接結束，絕不觸發下方系統語音
+      } catch (neuralErr) {
+        console.warn("Cloud Neural TTS unavailable, switching cleanly to single local voice:", neuralErr);
+        stopAllAudioElements();
+      }
+    }
+
+    // 模式 B：僅在離線或使用者手動切換至「瀏覽器系統內建語音」時，才使用單一系統語音
+    if (mySessionId !== currentSpeechSessionId) return;
+    stopAllAudioElements();
+
+    if ("speechSynthesis" in window && matchedLocalVoice) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(clean);
+      utterance.lang = meta.ttsCode;
+      utterance.rate = rate;
+      utterance.voice = matchedLocalVoice;
+      window.speechSynthesis.speak(utterance);
+    } else if (ttsActiveStatus) {
+      ttsActiveStatus.textContent = "⚠️ 無法連接語音服務，且您的系統尚未安裝該語言離線語音包";
+    }
+  }
+
+  if ("speechSynthesis" in window && window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.getVoices();
+    };
+  }
+
+  // ============================================================================
+  // 11. 🗣️ 雙向即時溝通模式（支援「我說中文 ➔ 外語」與「對方說外語 ➔ 繁體中文」雙向口譯）
+  // ============================================================================
+  let currentPartnerLang = "en"; // 對方使用的外語：'en' | 'ja' | 'ko' | 'vi'
+  let currentSpeakerRole = "me"; // 'me' (我說中文 -> 外語) | 'partner' (對方說外語 -> 繁體中文)
+  let currentVoiceTranslatedText = "Is there a convenience store nearby?";
+  let currentVoiceOutputLang = "en";
+  let isRecognizing = false;
+  let activeMicRole = null;
+  let recognitionInstance = null;
+
+  const micCardMe = document.getElementById("mic-card-me");
+  const micCardPartner = document.getElementById("mic-card-partner");
+  const subMicMe = document.getElementById("sub-mic-me");
+  const labelMicPartner = document.getElementById("label-mic-partner");
+  const subMicPartner = document.getElementById("sub-mic-partner");
+  const btnStartMicPartner = document.getElementById("btn-start-mic-partner");
+  const voiceInputLabel = document.getElementById("voice-input-label");
+  const btnRoleMe = document.getElementById("btn-role-me");
+  const btnRolePartner = document.getElementById("btn-role-partner");
+  const chatHistoryBox = document.getElementById("chat-history-box");
+  const chatHistoryList = document.getElementById("chat-history-list");
+  const btnClearChatHistory = document.getElementById("btn-clear-chat-history");
+
+  function checkVoiceEnvironmentHint() {
+    hideVoiceStatus();
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      showVoiceStatus("此瀏覽器目前不支援麥克風語音辨識，請改用 Chrome 或 Safari。（您仍可直接點擊下方切換說話方並打字進行雙向翻譯與朗讀）", "info");
+      return false;
+    }
+    if (window.isSecureContext === false && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+      showVoiceStatus("語音功能建議在 HTTPS 網站使用。", "info");
+    }
+    return true;
+  }
+
+  function updateBidirectionalVoiceUI() {
+    const partnerMeta = LANG_META[currentPartnerLang] || LANG_META.en;
+    const zhMeta = LANG_META["zh-TW"];
+
+    targetLangBtns.forEach(btn => {
+      const isMatch = btn.getAttribute("data-target") === currentPartnerLang;
+      btn.classList.toggle("active", isMatch);
+    });
+
+    voiceDirectionBadge.textContent = `🔄 雙向溝通模式：🇹🇼 繁體中文 ⇄ ${partnerMeta.name}`;
+    subMicMe.textContent = `說中文 ➔ 自動翻成 ${partnerMeta.name} 朗讀`;
+    labelMicPartner.textContent = `🧑 【 對方說外語 (${partnerMeta.name}) 】`;
+    subMicPartner.textContent = `對方說 ${partnerMeta.name} ➔ 自動翻成 🇹🇼 繁體中文朗讀`;
+    if (!isRecognizing) {
+      btnStartMicPartner.innerHTML = `🎤 對方說 ${partnerMeta.name.split(" ")[1] || partnerMeta.name}`;
+    }
+
+    const isMe = currentSpeakerRole === "me";
+    micCardMe.classList.toggle("active-side", isMe);
+    micCardPartner.classList.toggle("active-side", !isMe);
+    btnRoleMe.classList.toggle("active", isMe);
+    btnRolePartner.classList.toggle("active", !isMe);
+
+    if (isMe) {
+      voiceInputLabel.textContent = `輸入或修改要翻譯的句子（目前方向：🙋‍♂️ 我說中文 ➔ ${partnerMeta.name}）：`;
+      voiceZhInput.placeholder = "請說中文或輸入中文句子（例如：請問這附近有便利商店嗎？）";
+      voiceLangCodeIndicator.textContent = `目標發音語音：${partnerMeta.ttsCode}`;
+    } else {
+      voiceInputLabel.textContent = `輸入或修改對方說的外語（目前方向：🧑 對方說 ${partnerMeta.name} ➔ 🇹🇼 繁體中文）：`;
+      voiceZhInput.placeholder = `請讓對方說 ${partnerMeta.name} 或貼上外語句子...`;
+      voiceLangCodeIndicator.textContent = `目標發音語音：${zhMeta.ttsCode}`;
+    }
+  }
+
+  function setSpeakerRole(role) {
+    currentSpeakerRole = role === "partner" ? "partner" : "me";
+    updateBidirectionalVoiceUI();
+  }
+
+  function updateVoiceTargetUI(targetLang) {
+    currentPartnerLang = LANG_META[targetLang] ? targetLang : "en";
+    updateBidirectionalVoiceUI();
+  }
+
+  btnRoleMe.addEventListener("click", () => {
+    setSpeakerRole("me");
+  });
+
+  btnRolePartner.addEventListener("click", () => {
+    setSpeakerRole("partner");
+  });
+
+  targetLangBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.getAttribute("data-target") || "en";
+      updateVoiceTargetUI(target);
+      if (voiceZhInput.value.trim()) {
+        // 若輸入框內是外語且使用者切換了對方語言，或輸入框內是中文要翻成新的對方語言，皆自動重新翻譯
+        translateAndSpeakVoiceMode();
+      }
+    });
+  });
+
+  document.querySelectorAll(".voice-sample-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const role = chip.getAttribute("data-role") || "me";
+      const sampleText = chip.getAttribute("data-text") || "";
+      const partnerLangAttr = chip.getAttribute("data-partner-lang");
+      if (partnerLangAttr && LANG_META[partnerLangAttr]) {
+        currentPartnerLang = partnerLangAttr;
+      }
+      currentSpeakerRole = role;
+      updateBidirectionalVoiceUI();
+      voiceZhInput.value = sampleText;
+      translateAndSpeakVoiceMode();
+    });
+  });
+
+  function appendChatHistoryItem(role, sourceLang, targetLang, sourceText, translatedText) {
+    if (!chatHistoryBox || !chatHistoryList) return;
+    chatHistoryBox.style.display = "block";
+
+    const item = document.createElement("div");
+    item.className = "chat-bubble " + (role === "me" ? "me" : "partner");
+
+    const srcMeta = LANG_META[sourceLang] || LANG_META["zh-TW"];
+    const tgtMeta = LANG_META[targetLang] || LANG_META.en;
+    const roleTitle = role === "me" ? `🙋‍♂️ 我說 (${srcMeta.name})` : `🧑 對方說 (${srcMeta.name})`;
+
+    const leftDiv = document.createElement("div");
+    leftDiv.style.flex = "1";
+
+    const badge = document.createElement("div");
+    badge.style.fontSize = "0.78rem";
+    badge.style.fontWeight = "700";
+    badge.style.color = "var(--text-muted)";
+    badge.style.marginBottom = "3px";
+    badge.textContent = `${roleTitle} ➔ ${tgtMeta.name}`;
+
+    const origP = document.createElement("div");
+    origP.style.fontSize = "0.95rem";
+    origP.style.color = "var(--text-main)";
+    origP.style.marginBottom = "4px";
+    origP.textContent = sourceText;
+
+    const transP = document.createElement("div");
+    transP.style.fontSize = "1.08rem";
+    transP.style.fontWeight = "700";
+    transP.style.color = role === "me" ? "var(--primary)" : "var(--success-green)";
+    transP.textContent = translatedText;
+
+    leftDiv.appendChild(badge);
+    leftDiv.appendChild(origP);
+    leftDiv.appendChild(transP);
+
+    const rightBtns = document.createElement("div");
+    rightBtns.className = "tts-controls";
+
+    const btnPlayTrans = document.createElement("button");
+    btnPlayTrans.type = "button";
+    btnPlayTrans.className = "tts-btn";
+    btnPlayTrans.innerHTML = "🔊 譯文";
+    btnPlayTrans.onclick = () => speakText(translatedText, targetLang, 1.0);
+
+    const btnPlayOrig = document.createElement("button");
+    btnPlayOrig.type = "button";
+    btnPlayOrig.className = "tts-btn";
+    btnPlayOrig.innerHTML = "🔈 原文";
+    btnPlayOrig.onclick = () => speakText(sourceText, sourceLang, 1.0);
+
+    rightBtns.appendChild(btnPlayTrans);
+    rightBtns.appendChild(btnPlayOrig);
+
+    item.appendChild(leftDiv);
+    item.appendChild(rightBtns);
+
+    chatHistoryList.prepend(item);
+  }
+
+  if (btnClearChatHistory) {
+    btnClearChatHistory.addEventListener("click", () => {
+      chatHistoryList.innerHTML = "";
+      chatHistoryBox.style.display = "none";
+    });
+  }
+
+  async function translateAndSpeakVoiceMode() {
+    const rawInput = voiceZhInput.value.trim();
+    if (!rawInput) {
+      showVoiceStatus("請先點擊麥克風說話，或在輸入框輸入要翻譯的句子。", "error");
+      return;
+    }
+
+    hideVoiceStatus();
+    btnTranslateSpeak.disabled = true;
+    voiceOutputText.textContent = "翻譯中...";
+
+    try {
+      // 智慧判斷：若使用者在輸入框直接貼上外語或中文，也自動對應正確方向
+      const detected = detectSentenceLanguage(rawInput);
+      let sourceLang = "zh-TW";
+      let targetLang = currentPartnerLang;
+      let effectiveRole = currentSpeakerRole;
+
+      if (currentSpeakerRole === "partner" || (detected !== "zh-TW" && currentSpeakerRole === "me" && !/[\u4E00-\u9FFF]/.test(rawInput))) {
+        effectiveRole = "partner";
+        sourceLang = (detected !== "zh-TW") ? detected : currentPartnerLang;
+        targetLang = "zh-TW";
+        if (sourceLang !== currentPartnerLang && LANG_META[sourceLang]) {
+          currentPartnerLang = sourceLang;
+        }
+        currentSpeakerRole = "partner";
+        updateBidirectionalVoiceUI();
+      } else {
+        effectiveRole = "me";
+        sourceLang = "zh-TW";
+        targetLang = currentPartnerLang;
+      }
+
+      const targetMeta = LANG_META[targetLang] || LANG_META.en;
+      voiceOutputLangTag.textContent = effectiveRole === "me"
+        ? `🙋‍♂️ 翻譯給對方聽 (${targetMeta.name})`
+        : `🧑 對方說的話 ➔ 翻譯成 (${targetMeta.name})`;
+
+      const translated = await translateTextPair(rawInput, sourceLang, targetLang);
+      currentVoiceTranslatedText = translated;
+      currentVoiceOutputLang = targetLang;
+      voiceOutputText.textContent = translated;
+
+      appendChatHistoryItem(effectiveRole, sourceLang, targetLang, rawInput, translated);
+
+      if (chkAutoSpeak.checked) {
+        speakText(translated, targetLang, 1.0);
+      }
+    } catch (err) {
+      voiceOutputText.textContent = "翻譯失敗，請檢查網路連線後重試。";
+      showVoiceStatus(`⚠️ 翻譯失敗：${err.message}`, "error");
+    } finally {
+      btnTranslateSpeak.disabled = false;
+    }
+  }
+
+  btnTranslateSpeak.addEventListener("click", () => {
+    translateAndSpeakVoiceMode();
+  });
+
+  btnVoicePlayNormal.addEventListener("click", () => {
+    if (currentVoiceTranslatedText) {
+      speakText(currentVoiceTranslatedText, currentVoiceOutputLang, 1.0);
+    }
+  });
+
+  btnVoicePlaySlow.addEventListener("click", () => {
+    if (currentVoiceTranslatedText) {
+      speakText(currentVoiceTranslatedText, currentVoiceOutputLang, 0.65);
+    }
+  });
+
+  function startBidirectionalMic(role) {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      showVoiceStatus("此瀏覽器目前不支援語音輸入，請改用 Chrome 或支援語音辨識的瀏覽器。", "error");
+      return;
+    }
+
+    if (isRecognizing && recognitionInstance) {
+      recognitionInstance.stop();
+      return;
+    }
+
+    hideVoiceStatus();
+    setSpeakerRole(role);
+
+    try {
+      const recognition = new SpeechRec();
+      recognitionInstance = recognition;
+      activeMicRole = role;
+
+      const partnerMeta = LANG_META[currentPartnerLang] || LANG_META.en;
+      if (role === "me") {
+        try {
+          recognition.lang = "zh-TW";
+        } catch (e) {
+          recognition.lang = "zh-Hant-TW";
+        }
+      } else {
+        recognition.lang = partnerMeta.ttsCode;
+      }
+
+      recognition.interimResults = false;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 1;
+
+      let gotResult = false;
+
+      recognition.onstart = () => {
+        isRecognizing = true;
+        if (role === "me") {
+          btnStartMic.classList.add("listening");
+          btnStartMic.innerHTML = "🛑 正在聽您說中文...（點擊停止）";
+          micStatusHint.textContent = "🎙️ 請直接對著麥克風說「中文」...";
+        } else {
+          btnStartMicPartner.classList.add("listening");
+          btnStartMicPartner.innerHTML = `🛑 正在聽對方說 ${partnerMeta.name.split(" ")[1] || partnerMeta.name}...`;
+          micStatusHint.textContent = `🎙️ 請讓對方對著麥克風說「${partnerMeta.name}」...`;
+        }
+      };
+
+      recognition.onresult = (event) => {
+        if (event.results && event.results[0] && event.results[0][0]) {
+          const transcript = event.results[0][0].transcript.trim();
+          if (transcript) {
+            gotResult = true;
+            voiceZhInput.value = transcript;
+            micStatusHint.textContent = `✅ 已辨識（${role === "me" ? "我說中文" : "對方說外語"}）：「${transcript}」`;
+            translateAndSpeakVoiceMode();
+          }
+        }
+      };
+
+      recognition.onerror = (event) => {
+        const errCode = event.error;
+        if (errCode === "not-allowed" || errCode === "service-not-allowed" || errCode === "permission-denied") {
+          showVoiceStatus("請允許瀏覽器使用麥克風權限。", "error");
+        } else if (errCode === "no-speech") {
+          showVoiceStatus("沒有聽清楚，請再點擊麥克風說一次。", "error");
+        } else {
+          showVoiceStatus("語音辨識未成功，請再試一次或直接在下方輸入文字。", "error");
+        }
+      };
+
+      recognition.onend = () => {
+        isRecognizing = false;
+        activeMicRole = null;
+        btnStartMic.classList.remove("listening");
+        btnStartMic.innerHTML = "🎤 我說中文";
+        btnStartMicPartner.classList.remove("listening");
+        const pMeta = LANG_META[currentPartnerLang] || LANG_META.en;
+        btnStartMicPartner.innerHTML = `🎤 對方說 ${pMeta.name.split(" ")[1] || pMeta.name}`;
+        if (!gotResult && voiceStatusBox.style.display === "none") {
+          micStatusHint.textContent = "👆 點擊左方「🎤 我說中文」或右方「🎤 對方說外語」開始雙向對話";
+        }
+      };
+
+      recognition.start();
+    } catch (err) {
+      isRecognizing = false;
+      btnStartMic.classList.remove("listening");
+      btnStartMic.innerHTML = "🎤 我說中文";
+      btnStartMicPartner.classList.remove("listening");
+      showVoiceStatus("此瀏覽器目前不支援語音輸入，請改用 Chrome 或支援語音辨識的瀏覽器。", "error");
+    }
+  }
+
+  btnStartMic.addEventListener("click", () => {
+    startBidirectionalMic("me");
+  });
+
+  if (btnStartMicPartner) {
+    btnStartMicPartner.addEventListener("click", () => {
+      startBidirectionalMic("partner");
+    });
+  }
+
+  // ============================================================================
+  // 12. UI 狀態輔助函式
+  // ============================================================================
+  function showStatus(msg) {
+    statusBox.textContent = msg;
+    statusBox.style.display = "block";
+  }
+
+  function hideStatus() {
+    statusBox.style.display = "none";
+  }
+
+  function showVoiceStatus(msg, type = "error") {
+    voiceStatusBox.textContent = msg;
+    voiceStatusBox.className = "status-msg " + (type === "info" ? "status-info" : "status-error");
+    voiceStatusBox.style.display = "block";
+  }
+
+  function hideVoiceStatus() {
+    voiceStatusBox.style.display = "none";
+  }
+
+  function showProgress() {
+    progressBox.style.display = "flex";
+    progressFill.style.width = "0%";
+    progressText.textContent = "準備開始翻譯與分析...";
+  }
+
+  function updateProgress(percent, text) {
+    progressFill.style.width = `${percent}%`;
+    progressText.textContent = text;
+  }
+
+  function hideProgress() {
+    progressBox.style.display = "none";
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // ============================================================================
+  // 13. 🌏 旅人社群與即時在線人數互動系統（支援 Netlify 跨網域連線 ＋ 本地儲存雙重保障）
+  // ============================================================================
+  const FALLBACK_COMMUNITY_COMMENTS = [
+    {
+      id: "seed-1",
+      author: "台北旅人阿哲",
+      sceneTag: "🇯🇵 日本旅遊",
+      rating: 5,
+      content: "在京都住溫泉旅館時，女將說了「お早いお着きでございます」，原本用一般翻譯軟體翻得很奇怪，貼到這裡不但翻出「您到得真早」，連敬語語塊都拆得很清楚！另外分享一句在餐廳超好用的結帳日文給大家：",
+      sharedPhrase: "すみません、お会計をお願いします。",
+      sharedPhraseLang: "ja",
+      sharedPhraseMeaning: "不好意思，麻煩請幫我結帳。",
+      likes: 18,
+      createdAt: "2026-10-01 19:20"
+    },
+    {
+      id: "seed-2",
+      author: "薇薇 Vivian",
+      sceneTag: "🇻🇳 越南旅遊",
+      rating: 5,
+      content: "去胡志明市跟峴港自由行全靠這個網頁！以前越語發音自己唸店員都聽不懂，換成這裡的雲端真人越語發音後，點咖啡跟問路一次就通！推薦大家買東西必備這句：",
+      sharedPhrase: "Xin hỏi cái này giá bao nhiêu tiền?",
+      sharedPhraseLang: "vi",
+      sharedPhraseMeaning: "請問這個價錢多少錢？",
+      likes: 15,
+      createdAt: "2026-10-01 21:45"
+    },
+    {
+      id: "seed-3",
+      author: "Kevin 韓國跑單幫",
+      sceneTag: "🇰🇷 韓國旅遊",
+      rating: 5,
+      content: "雙向即時溝通模式超實用！在首爾弘大搭計程車跟去藥局買東西時，我按左邊說中文、司機按右邊說韓文，雙向對話紀錄清清楚楚，連拍照翻菜單也很快！",
+      sharedPhrase: "영수증 주세요. 포장해 주세요.",
+      sharedPhraseLang: "ko",
+      sharedPhraseMeaning: "請給我收據。請幫我外帶打包。",
+      likes: 12,
+      createdAt: "2026-10-02 08:15"
+    }
+  ];
+
+  const LOCAL_COMM_KEY = "bilingual_community_comments_v1";
+  const LOCAL_LIKED_KEY = "bilingual_community_liked_ids_v1";
+  const LOCAL_SESSION_KEY = "bilingual_visitor_session_id";
+  const LOCAL_VISITS_KEY = "bilingual_total_visits_v1";
+
+  let mySessionId = "";
+  try {
+    mySessionId = sessionStorage.getItem(LOCAL_SESSION_KEY) || "";
+    if (!mySessionId) {
+      mySessionId = "usr-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+      sessionStorage.setItem(LOCAL_SESSION_KEY, mySessionId);
+    }
+  } catch (e) {
+    mySessionId = "usr-" + Date.now();
+  }
+
+  let myPresenceStatusTag = "📖 正在自學外語";
+  let currentCommentFilter = "all";
+  let communityComments = [];
+  let likedCommentIds = new Set();
+
+  try {
+    const savedLiked = JSON.parse(localStorage.getItem(LOCAL_LIKED_KEY) || "[]");
+    if (Array.isArray(savedLiked)) {
+      likedCommentIds = new Set(savedLiked);
+    }
+  } catch (e) {}
+
+  const statOnlineCount = document.getElementById("stat-online-count");
+  const statOnlineBreakdown = document.getElementById("stat-online-breakdown");
+  const statTotalVisits = document.getElementById("stat-total-visits");
+  const statCommentCount = document.getElementById("stat-comment-count");
+  const myPresenceStatusLabel = document.getElementById("my-presence-status-label");
+  const commAuthorInput = document.getElementById("comm-author-input");
+  const commSceneSelect = document.getElementById("comm-scene-select");
+  const commRatingSelect = document.getElementById("comm-rating-select");
+  const commContentInput = document.getElementById("comm-content-input");
+  const commPhraseLang = document.getElementById("comm-phrase-lang");
+  const commPhraseText = document.getElementById("comm-phrase-text");
+  const commPhraseMeaning = document.getElementById("comm-phrase-meaning");
+  const btnCommAutoTranslatePhrase = document.getElementById("btn-comm-auto-translate-phrase");
+  const commStatusBox = document.getElementById("comm-status-box");
+  const btnSubmitComment = document.getElementById("btn-submit-comment");
+  const communityCommentList = document.getElementById("community-comment-list");
+  const btnCopySiteUrl = document.getElementById("btn-copy-site-url");
+  const btnRefreshCommunity = document.getElementById("btn-refresh-community");
+
+  // 輔助：取得可連線的 Community API 基底網址（同時支援本機/AI Studio 與發布到 Netlify 後跨網域呼叫）
+  function getCommunityApiCandidates(pathAndQuery) {
+    const urls = [];
+    if (location.protocol === "http:" || location.protocol === "https:") {
+      urls.push(pathAndQuery);
+    }
+    urls.push(`${CLOUD_TTS_FALLBACK_ORIGIN}${pathAndQuery}`);
+    return urls;
+  }
+
+  async function fetchCommunityEndpoint(pathAndQuery, options = {}) {
+    const candidates = getCommunityApiCandidates(pathAndQuery);
+    for (const url of candidates) {
+      try {
+        const resp = await fetch(url, options);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.ok) return data;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  function loadLocalCommentsFallback() {
+    try {
+      const raw = localStorage.getItem(LOCAL_COMM_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [...FALLBACK_COMMUNITY_COMMENTS];
+  }
+
+  function saveLocalCommentsFallback(list) {
+    try {
+      localStorage.setItem(LOCAL_COMM_KEY, JSON.stringify(list.slice(0, 80)));
+    } catch (e) {}
+  }
+
+  function updateOnlinePresenceUI(onlineCount, totalVisits, breakdown) {
+    const count = Math.max(1, Number(onlineCount) || 1);
+    const visits = Math.max(128, Number(totalVisits) || 128);
+
+    if (statOnlineCount) statOnlineCount.textContent = String(count);
+    if (statTotalVisits) statTotalVisits.textContent = String(visits);
+    if (tabOnlineBadge) tabOnlineBadge.textContent = `(${count})`;
+    if (headerOnlineText) {
+      headerOnlineText.textContent = `🟢 線上 ${count} 人使用中・點此看旅人回饋 (${communityComments.length})`;
+    }
+
+    if (statOnlineBreakdown) {
+      if (breakdown && typeof breakdown === "object" && Object.keys(breakdown).length > 0) {
+        const parts = Object.entries(breakdown).map(([tag, num]) => `${tag} ×${num}`);
+        statOnlineBreakdown.textContent = `即時動態：${parts.join(" ｜ ")}`;
+      } else {
+        statOnlineBreakdown.textContent = `即時動態：${myPresenceStatusTag} ×${count}`;
+      }
+    }
+  }
+
+  function renderCommunityComments() {
+    if (!communityCommentList) return;
+    communityCommentList.innerHTML = "";
+
+    if (statCommentCount) {
+      statCommentCount.textContent = String(communityComments.length);
+    }
+    if (headerOnlineText && statOnlineCount) {
+      headerOnlineText.textContent = `🟢 線上 ${statOnlineCount.textContent || "1"} 人使用中・點此看旅人回饋 (${communityComments.length})`;
+    }
+
+    const filtered = currentCommentFilter === "all"
+      ? communityComments
+      : communityComments.filter(c => c.sceneTag === currentCommentFilter);
+
+    if (filtered.length === 0) {
+      const emptyDiv = document.createElement("div");
+      emptyDiv.style.textAlign = "center";
+      emptyDiv.style.padding = "28px 16px";
+      emptyDiv.style.color = "var(--text-muted)";
+      emptyDiv.textContent = "目前此分類尚無留言，歡迎成為第一位分享經驗的旅人！";
+      communityCommentList.appendChild(emptyDiv);
+      return;
+    }
+
+    filtered.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "comment-card";
+
+      const header = document.createElement("div");
+      header.className = "comment-header";
+
+      const authorWrap = document.createElement("div");
+      authorWrap.className = "comment-author-wrap";
+
+      const authorSpan = document.createElement("span");
+      authorSpan.className = "comment-author";
+      authorSpan.textContent = `👤 ${item.author || "匿名旅人"}`;
+
+      const sceneBadge = document.createElement("span");
+      sceneBadge.className = "comment-scene-badge";
+      sceneBadge.textContent = item.sceneTag || "📖 語言自學";
+
+      const starsSpan = document.createElement("span");
+      starsSpan.className = "comment-stars";
+      const starNum = Math.min(5, Math.max(1, Number(item.rating) || 5));
+      starsSpan.textContent = "★".repeat(starNum) + "☆".repeat(5 - starNum);
+
+      authorWrap.appendChild(authorSpan);
+      authorWrap.appendChild(sceneBadge);
+      authorWrap.appendChild(starsSpan);
+
+      const timeSpan = document.createElement("span");
+      timeSpan.className = "comment-time";
+      timeSpan.textContent = item.createdAt || "剛剛";
+
+      header.appendChild(authorWrap);
+      header.appendChild(timeSpan);
+      card.appendChild(header);
+
+      const body = document.createElement("div");
+      body.className = "comment-body";
+      body.textContent = item.content || "";
+      card.appendChild(body);
+
+      // 若留言者有分享實用外語句子，提供「🔊 聽發音」與「📖 送入學習模式拆解」
+      if (item.sharedPhrase && item.sharedPhrase.trim()) {
+        const phraseLang = item.sharedPhraseLang || detectSentenceLanguage(item.sharedPhrase);
+        const langMeta = LANG_META[phraseLang] || LANG_META.en;
+
+        const phraseBox = document.createElement("div");
+        phraseBox.className = "shared-phrase-card";
+
+        const phraseLeft = document.createElement("div");
+        phraseLeft.style.flex = "1";
+
+        const phraseTitle = document.createElement("div");
+        phraseTitle.style.fontSize = "0.78rem";
+        phraseTitle.style.fontWeight = "700";
+        phraseTitle.style.color = "var(--primary)";
+        phraseTitle.textContent = `💡 旅人推薦實用句 (${langMeta.name})：`;
+
+        const phraseMain = document.createElement("div");
+        phraseMain.style.fontSize = "1.05rem";
+        phraseMain.style.fontWeight = "700";
+        phraseMain.style.color = "var(--text-main)";
+        phraseMain.style.marginTop = "2px";
+        phraseMain.textContent = item.sharedPhrase;
+
+        phraseLeft.appendChild(phraseTitle);
+        phraseLeft.appendChild(phraseMain);
+
+        if (item.sharedPhraseMeaning) {
+          const phraseSub = document.createElement("div");
+          phraseSub.style.fontSize = "0.88rem";
+          phraseSub.style.color = "var(--text-muted)";
+          phraseSub.style.marginTop = "2px";
+          phraseSub.textContent = `中文意思：${item.sharedPhraseMeaning}`;
+          phraseLeft.appendChild(phraseSub);
+        }
+
+        const phraseActions = document.createElement("div");
+        phraseActions.className = "tts-controls";
+
+        const btnSpeakPhrase = document.createElement("button");
+        btnSpeakPhrase.type = "button";
+        btnSpeakPhrase.className = "tts-btn";
+        btnSpeakPhrase.innerHTML = "🔊 聽發音";
+        btnSpeakPhrase.onclick = () => speakText(item.sharedPhrase, phraseLang, 1.0);
+
+        const btnLearnPhrase = document.createElement("button");
+        btnLearnPhrase.type = "button";
+        btnLearnPhrase.className = "tts-btn";
+        btnLearnPhrase.innerHTML = "📖 送入學習拆解";
+        btnLearnPhrase.onclick = () => {
+          inputText.value = item.sharedPhrase;
+          setLearnSourceLang(phraseLang);
+          setLearnTargetLang("auto-zh");
+          switchActiveMode("learn");
+          btnAnalyze.click();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+
+        phraseActions.appendChild(btnSpeakPhrase);
+        phraseActions.appendChild(btnLearnPhrase);
+
+        phraseBox.appendChild(phraseLeft);
+        phraseBox.appendChild(phraseActions);
+        card.appendChild(phraseBox);
+      }
+
+      const footer = document.createElement("div");
+      footer.className = "comment-footer";
+
+      const helpHint = document.createElement("span");
+      helpHint.style.fontSize = "0.8rem";
+      helpHint.style.color = "var(--text-muted)";
+      helpHint.textContent = "覺得這則經驗對旅遊或學習有幫助嗎？";
+
+      const likeBtn = document.createElement("button");
+      likeBtn.type = "button";
+      const isLiked = likedCommentIds.has(item.id);
+      likeBtn.className = "btn-like-comment" + (isLiked ? " liked" : "");
+      likeBtn.innerHTML = `👍 有幫助 (<span>${item.likes || 1}</span>)`;
+      likeBtn.onclick = async () => {
+        if (likedCommentIds.has(item.id)) return;
+        likedCommentIds.add(item.id);
+        try {
+          localStorage.setItem(LOCAL_LIKED_KEY, JSON.stringify(Array.from(likedCommentIds)));
+        } catch (e) {}
+
+        item.likes = (item.likes || 0) + 1;
+        saveLocalCommentsFallback(communityComments);
+        renderCommunityComments();
+
+        await fetchCommunityEndpoint("/api/community/like", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: item.id })
+        });
+      };
+
+      footer.appendChild(helpHint);
+      footer.appendChild(likeBtn);
+      card.appendChild(footer);
+
+      communityCommentList.appendChild(card);
+    });
+  }
+
+  async function syncCommunityData(isInitialVisit = false) {
+    const query = `/api/community?sessionId=${encodeURIComponent(mySessionId)}&statusTag=${encodeURIComponent(myPresenceStatusTag)}&newVisit=${isInitialVisit ? "1" : "0"}`;
+    const remoteData = await fetchCommunityEndpoint(query);
+
+    if (remoteData && Array.isArray(remoteData.comments)) {
+      communityComments = remoteData.comments;
+      saveLocalCommentsFallback(communityComments);
+      updateOnlinePresenceUI(remoteData.onlineCount, remoteData.totalVisits, remoteData.breakdown);
+      renderCommunityComments();
+      return;
+    }
+
+    // 若在純靜態無後端環境開啟，使用 LocalStorage + 即時模擬統計
+    communityComments = loadLocalCommentsFallback();
+    let localVisits = 129;
+    try {
+      localVisits = Number(localStorage.getItem(LOCAL_VISITS_KEY) || "128");
+      if (isInitialVisit) {
+        localVisits += 1;
+        localStorage.setItem(LOCAL_VISITS_KEY, String(localVisits));
+      }
+    } catch (e) {}
+
+    updateOnlinePresenceUI(1, localVisits, { [myPresenceStatusTag]: 1 });
+    renderCommunityComments();
+  }
+
+  async function sendPresenceHeartbeat() {
+    const data = await fetchCommunityEndpoint("/api/community/heartbeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: mySessionId,
+        statusTag: myPresenceStatusTag,
+        newVisit: false
+      })
+    });
+    if (data) {
+      updateOnlinePresenceUI(data.onlineCount, data.totalVisits, data.breakdown);
+    }
+  }
+
+  // 切換使用者目前所在狀態標籤
+  document.querySelectorAll("#presence-tag-group .status-tag-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#presence-tag-group .status-tag-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      myPresenceStatusTag = btn.getAttribute("data-presence-tag") || "📖 正在自學外語";
+      if (myPresenceStatusLabel) {
+        myPresenceStatusLabel.textContent = `目前標記：${myPresenceStatusTag}`;
+      }
+      sendPresenceHeartbeat();
+    });
+  });
+
+  // 篩選留言分類
+  document.querySelectorAll("#comment-filter-group .status-tag-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#comment-filter-group .status-tag-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentCommentFilter = btn.getAttribute("data-filter") || "all";
+      renderCommunityComments();
+    });
+  });
+
+  // 選填實用句：一鍵自動幫使用者互翻（輸入外語自動填中文、或輸入中文自動翻成選定的外語）
+  if (btnCommAutoTranslatePhrase) {
+    btnCommAutoTranslatePhrase.addEventListener("click", async () => {
+      const lang = commPhraseLang.value || "ja";
+      const phraseVal = commPhraseText.value.trim();
+      const meaningVal = commPhraseMeaning.value.trim();
+
+      if (!phraseVal && !meaningVal) {
+        commStatusBox.textContent = "💡 請先在「外語原句」或「中文意思」任一欄輸入文字，即可自動幫您翻譯另一欄！";
+        commStatusBox.className = "status-msg status-info";
+        commStatusBox.style.display = "block";
+        return;
+      }
+
+      commStatusBox.style.display = "none";
+      btnCommAutoTranslatePhrase.disabled = true;
+      btnCommAutoTranslatePhrase.textContent = "⏳ 自動翻譯中...";
+
+      try {
+        if (phraseVal && !meaningVal) {
+          const translatedZh = await translateTextPair(phraseVal, lang, "zh-TW");
+          commPhraseMeaning.value = translatedZh;
+        } else if (!phraseVal && meaningVal) {
+          const translatedForeign = await translateTextPair(meaningVal, "zh-TW", lang);
+          commPhraseText.value = translatedForeign;
+        } else {
+          const translatedZh = await translateTextPair(phraseVal, lang, "zh-TW");
+          commPhraseMeaning.value = translatedZh;
+        }
+      } catch (e) {
+      } finally {
+        btnCommAutoTranslatePhrase.disabled = false;
+        btnCommAutoTranslatePhrase.textContent = "✨ 輸入中文或外語自動幫我互翻填寫";
+      }
+    });
+  }
+
+  // 送出新留言與實用句分享
+  if (btnSubmitComment) {
+    btnSubmitComment.addEventListener("click", async () => {
+      const author = commAuthorInput.value.trim() || "熱心旅人";
+      const sceneTag = commSceneSelect.value || "🇯🇵 日本旅遊";
+      const rating = Number(commRatingSelect.value) || 5;
+      const content = commContentInput.value.trim();
+      const sharedPhrase = commPhraseText.value.trim();
+      const sharedPhraseLang = commPhraseLang.value || "ja";
+      let sharedPhraseMeaning = commPhraseMeaning.value.trim();
+
+      if (!content) {
+        commStatusBox.textContent = "⚠️ 請輸入您的使用體驗回饋或留言內容。";
+        commStatusBox.className = "status-msg status-error";
+        commStatusBox.style.display = "block";
+        return;
+      }
+
+      commStatusBox.style.display = "none";
+      btnSubmitComment.disabled = true;
+      btnSubmitComment.textContent = "🚀 正在發布留言...";
+
+      try {
+        if (sharedPhrase && !sharedPhraseMeaning) {
+          try {
+            sharedPhraseMeaning = await translateTextPair(sharedPhrase, sharedPhraseLang, "zh-TW");
+          } catch (e) {}
+        }
+
+        const payload = {
+          author,
+          sceneTag,
+          rating,
+          content,
+          sharedPhrase,
+          sharedPhraseLang,
+          sharedPhraseMeaning
+        };
+
+        const remoteRes = await fetchCommunityEndpoint("/api/community/post", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (remoteRes && Array.isArray(remoteRes.comments)) {
+          communityComments = remoteRes.comments;
+        } else {
+          const now = new Date();
+          const ts = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+          const fallbackItem = {
+            id: "local-" + Date.now(),
+            ...payload,
+            likes: 1,
+            createdAt: ts
+          };
+          communityComments.unshift(fallbackItem);
+        }
+
+        saveLocalCommentsFallback(communityComments);
+        currentCommentFilter = "all";
+        document.querySelectorAll("#comment-filter-group .status-tag-btn").forEach(b => {
+          b.classList.toggle("active", b.getAttribute("data-filter") === "all");
+        });
+        renderCommunityComments();
+
+        commContentInput.value = "";
+        commPhraseText.value = "";
+        commPhraseMeaning.value = "";
+
+        commStatusBox.textContent = "✅ 感謝您的分享！您的留言與實用句已經發布在下方回饋牆，幫助更多出外旅遊與學習的朋友。";
+        commStatusBox.className = "status-msg status-info";
+        commStatusBox.style.display = "block";
+      } finally {
+        btnSubmitComment.disabled = false;
+        btnSubmitComment.textContent = "🚀 發布留言回饋與實用句分享";
+      }
+    });
+  }
+
+  // 複製網頁連結按鈕（方便發布到 Netlify 後一鍵分享）
+  if (btnCopySiteUrl) {
+    btnCopySiteUrl.addEventListener("click", async () => {
+      const shareUrl = window.location.href;
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        btnCopySiteUrl.textContent = "✅ 已複製連結！可貼給旅伴";
+        setTimeout(() => {
+          btnCopySiteUrl.textContent = "🔗 複製網頁連結分享";
+        }, 2200);
+      } catch (e) {
+        commStatusBox.textContent = `🔗 請直接複製網址分享：${shareUrl}`;
+        commStatusBox.className = "status-msg status-info";
+        commStatusBox.style.display = "block";
+      }
+    });
+  }
+
+  if (btnRefreshCommunity) {
+    btnRefreshCommunity.addEventListener("click", async () => {
+      btnRefreshCommunity.textContent = "⏳ 同步中...";
+      await syncCommunityData(false);
+      btnRefreshCommunity.textContent = "✅ 已是最新";
+      setTimeout(() => {
+        btnRefreshCommunity.textContent = "🔄 重新整理動態";
+      }, 1500);
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    updateInputCharCount();
+    if (inputText.value.trim()) {
+      btnAnalyze.click();
+    } else {
+      showLearnWelcomeGuide();
+    }
+    syncCommunityData(true);
+    setInterval(sendPresenceHeartbeat, 25000);
+  });
+</script>
+
+
+
+</body></html>
